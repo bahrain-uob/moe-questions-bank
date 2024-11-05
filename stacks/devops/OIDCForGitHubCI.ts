@@ -58,6 +58,8 @@ export function OIDCForGitHubCI({stack }: StackContext) {
                 'ssm:GetParametersByPath',
                 'ssm:PutParameter',
                 'sts:AssumeRole',
+                'sts:AssumeRoleWithWebIdentity',
+
             ],
             resources: [
                 '*',

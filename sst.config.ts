@@ -8,7 +8,7 @@ import { OIDCForGitHubCI } from "./stacks/devops/OIDCForGitHubCI";
 export default {
   config(_input) {
     return {
-      name: "codecatalyst-sst-app",
+      name: "QuestionBank-sst-app",
       region: "us-east-1",
     };
   },

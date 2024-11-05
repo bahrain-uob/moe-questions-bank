@@ -41,23 +41,24 @@ export function DBStack({ stack, app }: StackContext) {
                 exportName: dbClusterIdentifierOutputName,
             },
         });
-    } // else {
+    } else {
         // Import the existing secret from the exported value
-       // const existing_secret = secretsManager.Secret.fromSecretCompleteArn(stack, "ExistingSecret", Fn.importValue(dbSecretArnOutputName));
+        const existing_secret = secretsManager.Secret.fromSecretCompleteArn(stack, "ExistingSecret", Fn.importValue(dbSecretArnOutputName));
         // Create an SST resource for the existing DB (does not create a new DB, references the existing one)
-       // db = new RDS(stack, "ExistingDatabase", {
-            //engine: "mysql5.7",
-           // defaultDatabaseName: "maindb",
-            //migrations: [".","packages","db-migrations"].join(path.sep),
-           // cdk: {
-              //  cluster: rds.ServerlessCluster.fromServerlessClusterAttributes(stack, "ExistingCluster", {
+        db = new RDS(stack, "ExistingDatabase", {
+            engine: "mysql5.7",
+            defaultDatabaseName: "maindb",
+            migrations: [".","packages","db-migrations"].join(path.sep),
+            cdk: {
+                cluster: rds.ServerlessCluster.fromServerlessClusterAttributes(stack, "ExistingCluster", {
                     // Import the existing cluster identifier from the exported value
-                  //  clusterIdentifier: Fn.importValue(dbClusterIdentifierOutputName),
-                  //  secret: existing_secret,
-              //  }),
-                //secret: existing_secret,
-           // },
-       // });
-  //
+                    clusterIdentifier: Fn.importValue(dbClusterIdentifierOutputName),
+                    secret: existing_secret,
+                }),
+                secret: existing_secret,
+            },
+        });
+    }
+
     return {table, db};
 }

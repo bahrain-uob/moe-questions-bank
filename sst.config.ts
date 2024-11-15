@@ -4,6 +4,7 @@ import { DBStack } from "./stacks/DBStack";
 import { ApiStack } from "./stacks/ApiStack";
 import { ImageBuilderForCodeCatalyst } from "./stacks/devops/ImageBuilderForCodeCatalyst";
 import { OIDCForGitHubCI } from "./stacks/devops/OIDCForGitHubCI";
+import { CognitoStack } from "./stacks/CognitoStack";
 
 export default {
   config(_input) {
@@ -27,6 +28,7 @@ export default {
     else {
       app.stack(DBStack)
       .stack(ApiStack)
+      .stack(CognitoStack)
       .stack(FrontendStack);
     }
   }

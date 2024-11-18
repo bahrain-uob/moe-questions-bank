@@ -21,9 +21,9 @@ export function ApiStack({ stack }: StackContext) {
         },
         routes: {//callinh lambdas
             // Route for submitting feedback
-            "POST /submit-feedback": "packages/functions/src/FeedbackSubmission.handler",
+            // "POST /submit-feedback": "packages/functions/src/FeedbackSubmission.handler",
             // Route for generating exams
-            "POST /generate-exam": "packages/functions/src/ask-question.handler",
+            // "POST /generate-exam": "packages/functions/src/ask-question.handler",
             // Route for retrieving exam history
             //"GET /exam-history": "",
 

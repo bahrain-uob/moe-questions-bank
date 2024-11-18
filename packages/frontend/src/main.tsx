@@ -13,7 +13,7 @@ import './index.css';
 //import awsExports from './aws-exports';
 import { Amplify } from 'aws-amplify';
 //import { UserPool } from 'aws-cdk-lib/aws-cognito';
-import awsExports from "./aws-exports";
+//import awsExports from "./aws-exports";
 
 //console.log("awsExports:",awsExports);
 

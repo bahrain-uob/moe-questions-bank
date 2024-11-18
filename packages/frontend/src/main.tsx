@@ -37,7 +37,7 @@ import { Amplify } from 'aws-amplify';
           required:true,
         },
       },
-      mandatorySignIn: true,// all users must sign in to use the app.
+      //mandatorySignIn: true,// all users must sign in to use the app.
       selfSignUpEnabled: true, 
       
     },

@@ -29,7 +29,7 @@ export default {
     else {
       app.stack(DBStack)
       .stack(ApiStack)
-      .stack(CognitoStack)
+      //.stack(CognitoStack)
       .stack(AlertStack)
       .stack(FrontendStack);
     }

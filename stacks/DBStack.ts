@@ -1,37 +1,46 @@
-import { PartitionKey } from "aws-cdk-lib/aws-appsync";
 import { Table, StackContext } from "sst/constructs";
 
-// RDS imports are kept commented out for reference, not needed since we're not using RDS
-// import * as rds from "aws-cdk-lib/aws-rds";
-// import * as secretsManager from "aws-cdk-lib/aws-secretsmanager";
-// import * as path from 'path';
-// import { Fn } from "aws-cdk-lib";
+export function DBStack({ stack }: StackContext) {
+  // Create a DynamoDB table for allowed emails
+  const AllowedEmailsTable = new Table(stack, "AllowedEmails", {
+    fields: {
+      email: "string", // Email is the primary key
+    },
+    primaryIndex: { partitionKey: "email" },
+  });
 
+  // Create a DynamoDB table for feedback
+  const FeedbackTable = new Table(stack, "FeedbackTable", {
+    fields: {
+      feedbackId: "string", // Partition key
+    },
+    primaryIndex: { partitionKey: "feedbackId" },
+  });
 
-//create ans manage the dynamtables
-export function DBStack({ stack, app }: StackContext) {
-    
-    // Create a DynamoDB table 
-    const table = new Table(stack, "Counter", {
-        fields: {
-            counter: "string",
-        },
-        primaryIndex: { partitionKey: "counter" },
-    });
+  // Create a DynamoDB table for exam history
+  const ExamHistoryTable = new Table(stack, "ExamHistoryTable", {
+    fields: {
+      examId: "string", // Unique ID for the exam
+      grade: "string", // Grade level for filtering
+      subject: "string", // Subject for filtering
+    },
+    primaryIndex: { partitionKey: "examId" }, // Primary key for the table
+    globalIndexes: {
+      // Define a global secondary index for filtering by grade
+      gradeIndex: { partitionKey: "grade" },
+      // Define a global secondary index for filtering by subject
+      subjectIndex: { partitionKey: "subject" },
+    },
+  });
 
-    //create a DynamoDB table for the allowed emails for the presignup validation
-    const AllowedEmailsTable =new Table(stack,"AllowedEmails",{
-        fields:{
-            email:"string",//the key for this table
-        },
-        primaryIndex:{partitionKey:"email"},
-    });
+  stack.addOutputs({
+    AllowedEmailsTableName: AllowedEmailsTable.tableName,
+    FeedbackTableName: FeedbackTable.tableName,
+    ExamHistoryTableName: ExamHistoryTable.tableName,
+  });
 
-    //make the table name accessabile in other parts
-    stack.addOutputs({
-    AllowedEmailsTableName:AllowedEmailsTable.tableName,
-    });
-    return{AllowedEmailsTable};
+  return { AllowedEmailsTable, FeedbackTable, ExamHistoryTable };
+}
 
 
     // RDS-related code (commented out):
@@ -75,6 +84,5 @@ export function DBStack({ stack, app }: StackContext) {
     // }
 
     // Return DynamoDB table (RDS code is commented out for now)
-    return { table };
-}
+    //return { table };
 

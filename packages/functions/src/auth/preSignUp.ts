@@ -1,39 +1,65 @@
-//import the aws sdk to ineteract with dynamo
-import{DynamoDB} from "aws-sdk";
+//import { DynamoDB, CognitoIdentityServiceProvider } from "aws-sdk";
 
-//create dynamodb clint to talk to the DB
-const dynamoDb=new DynamoDB.DocumentClient();
+//const dynamoDb = new DynamoDB.DocumentClient();
+//const cognito = new CognitoIdentityServiceProvider();
 
-//lambda function that runs befor a user siginup
-export async function handler(event:any) {
-    console.log("PreSignUp",event);
+//export async function handler(event: any) {
+ // console.log("PreSignUp event received:", JSON.stringify(event));
 
+  //const email = event.request?.userAttributes?.email;
+  //if (!email || !email.includes("@")) {
+   // console.error("Invalid or missing email in sign-up request.");
+   // throw new Error("Sign-up not allowed - invalid email");
+ // }
 
-//get the user email from the signup request
-const email=event.request.userAttributes.email;
+  //const tableName = process.env.ALLOWED_EMAILS_TABLE;//"fatim-moe-questions-bank-AllowedEmails"
+  //const userPoolId = process.env.COGNITO_USER_POOL_ID;//"us-east-1_ZgdHinkjc"
 
-//set up the parameters to check email in the allowed emails table
-const params={
-  TableName:process.env.ALLOWED_EMAILS_TABLES!, //here
-   Key:{email},//use the email as a lookup key
-};
+  //if (!tableName || !userPoolId) {
+    //console.error("Missing required environment variables.");
+    //throw new Error("Sign-up not allowed - internal configuration error");
+  //}
 
-try{
-    //check the email if in the table
-    const result=await dynamoDb.get(params).promise();
+  //const params = {
+   // TableName: tableName,
+    //Key: { email },
+  //};
 
-    if (!result.Item){
-        //email is not found
-        throw new Error("Email is not authorized ");
+  //try {
+    //const result = await dynamoDb.get(params).promise();
+    //console.log("DynamoDB result:", result);
 
-    }
+    //if (!result.Item) {
+     // console.error(`Email ${email} is not authorized for sign-up.`);
+      //throw new Error("Sign-up not allowed - unauthorized email");
+    //}
 
-}catch(error){
-    console.error("Error validating email:",error);
-    throw new Error("login not allowed");
+    //try {
+     // await cognito
+      //  .adminCreateUser({
+        //  UserPoolId: userPoolId,
+        //  Username: email,
+        //  UserAttributes: [
+         //   { Name: "email", Value: email },
+          //  { Name: "email_verified", Value: "true" },
+          //],
+          //TemporaryPassword: "TemporaryPassword123!", // Provide a strong default temporary password
+          //MessageAction: "SUPPRESS", // Suppress default message
+        //})
+        //.promise();
+      //console.log(`User successfully created for ${email}`);
+    //} catch (error: any) {
+     // if (error.code === "UsernameExistsException") {
+      //  console.log(`User ${email} already exists in Cognito.`);
+      //} else {
+       // console.error("Error creating user in Cognito:", error);
+       // throw new Error("Sign-up not allowed - Cognito error");
+     // }
+   // }
+  //} catch (error) {
+   // console.error("Error during sign-up process:", error);
+   // throw new Error("Sign-up not allowed - internal error");
+ // }
 
-}
-
-//if email is found 
-return event;
-}
+ // return event;
+//}

@@ -1,18 +1,32 @@
 import React from "react";
-// Import Amplify's Authenticator component
+//A ready-made login form
 import { Authenticator } from "@aws-amplify/ui-react";
-import "@aws-amplify/ui-react/styles.css"; // Include Amplify's default styling
+import "@aws-amplify/ui-react/styles.css";
 
+//creates the Login Page component{a block of the website}
 const LoginPage: React.FC = () => {
   return (
-    <Authenticator>
-      {({ signOut, user }) => (
-        <div>
-          <h1>Welcome, {user?.username}</h1> //logged-in username 
-          <button onClick={signOut}>Sign out</button> 
-        </div>
-      )}
-    </Authenticator>
+    <div
+      style={{
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        height: "100vh",
+        backgroundColor: "white",
+      }}
+    >
+      <div
+        style={{
+          width: "400px",
+          boxShadow: "0 4px 10px rgba(0, 0, 0, 0.1)",
+          borderRadius: "8px",
+          padding: "2rem",
+          backgroundColor: "white",
+        }}
+      >
+        <Authenticator />
+      </div>
+    </div>
   );
 };
 

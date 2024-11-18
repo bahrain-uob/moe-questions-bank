@@ -1,25 +1,38 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
-import {BrowserRouter as Router, Route , Routes} from "react-router-dom";
-import LoginPage from './pages/LogInPage';
+import React from "react";
+import { BrowserRouter as Router, Route, Routes, Navigate } from "react-router-dom";//navigation between different pages of the website.
+import Dashboard from "./pages/Dashboard";
+import ExamForm from "./pages/ExamForm";
+import FeedbackForm from "./pages/FeedbackForm";
+import HistoryPage from "./pages/HistoryPage";
+//import LoginPage from "./pages/LoginPage";
+import { Authenticator } from "@aws-amplify/ui-react";//It ensures only logged-in users can access the website , it wraps the entire app in AWS Amplify’s login system
+import "@aws-amplify/ui-react/styles.css";
+import awsExports from "./aws-exports";
+import { Amplify } from "aws-amplify";
 
 
-const App:React.FC=()=>{
-  return(
-    <Router>
-      <Routes>
-        <Route path="/" element={<LoginPage />} />
-      </Routes>
-    </Router>
+const App: React.FC = () => {
+  return (
+    <Authenticator>  
+      {({ user, signOut }) => (
+        <Router>
+          <Routes>
+            <Route
+              path="/" //Homepage
+              element={user ? <Navigate to="/dashboard" /> : <Navigate to="/login" />} //If they’re logged in, they’re sent to the dashboard.If they’re not logged in, they’re sent to the login page.
+            />
+            <Route path="/dashboard" element={<Dashboard signOut={signOut} />} /> 
+            <Route path="/exam-form" element={<ExamForm />} />
+            <Route path="/feedback-form" element={<FeedbackForm />} />
+            <Route path="/history" element={<HistoryPage />} />
+          </Routes>
+        </Router>
+      )}
+    </Authenticator>
   );
 };
 
 export default App;
-
-
-
 //function App() {
  // const [count, setCount] = useState("")
 

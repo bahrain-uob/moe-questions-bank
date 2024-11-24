@@ -23,8 +23,9 @@ import ReactDOM from 'react-dom/client';
 import App from './App';
 import './index.css';
 //import awsExports from './aws-exports';
-// import { Amplify } from 'aws-amplify';
+import { Amplify } from 'aws-amplify';
 //import { CognitoIdentityClient, GetIdCommand } from "@aws-sdk/client-cognito-identity";
+import { signUp, confirmSignUp, signIn, signOut, getCurrentUser, resendSignUpCode, resetPassword, confirmResetPassword, fetchAuthSession} from 'aws-amplify/auth';
 
 //import { UserPool } from 'aws-cdk-lib/aws-cognito';
 //import awsExports from "./aws-exports";
@@ -35,29 +36,142 @@ import './index.css';
 
 
  //Initialize Amplify with correct configuration
- // This connects the app to AWS Cognito for user authentication.
-//  Amplify.configure({//The Amplify.configure() method links the React application to AWS Cognito.
-//   Auth: {
-//     Cognito:{
-//       userPoolId: "us-east-1_ZgdHinkjc",
-//       userPoolClientId: "d71lh69j33ljq911jr33sbukp",
-//       loginWith:{
-//         email:true,
-//       },
-//       //signUpVerificationMethod: "code",
-//       userAttributes:{
-//         email:{
-//           required:true,
-//         },
-//       },
-//       //mandatorySignIn: true,// all users must sign in to use the app.
-//       selfSignUpEnabled: true, 
+ //This connects the app to AWS Cognito for user authentication.
+ Amplify.configure({//The Amplify.configure() method links the React application to AWS Cognito.
+  Auth: {
+    Cognito:{
+      userPoolId: "us-east-1_ZgdHinkjc",
+      userPoolClientId: "d71lh69j33ljq911jr33sbukp",
+      loginWith:{
+        email:true,
+      },
+      //signUpVerificationMethod: "code",
+      userAttributes:{
+        email:{
+          required:true,
+        },
+      },
+      //mandatorySignIn: true,// all users must sign in to use the app.
+      //selfSignUpEnabled: true, 
       
-//     },
-//   },
+    },
+  },
   
-// });
+});
 //
+
+
+class AuthService {
+  async signUp(email: any, password: any, phone_number: any) {
+    try {
+      const { isSignUpComplete, userId, nextStep } = await signUp({
+        username: email,
+        password,
+        options: {
+          userAttributes: {
+            email,
+            phone_number: phone_number
+          },
+          autoSignIn: true
+        }
+      });
+      return { isSignUpComplete, userId, nextStep };
+    } catch (error) {
+      console.error('Error signing up:', error);
+      throw error;
+    }
+  }
+
+  async confirmSignUp(email: any, confirmationCode: any) {
+    try {
+      const { isSignUpComplete, nextStep } = await confirmSignUp({
+        username: email,
+        confirmationCode
+      });
+      return { isSignUpComplete, nextStep };
+    } catch (error) {
+      console.error('Error confirming sign up:', error);
+      throw error;
+    }
+  }
+
+  async signIn(email: any, password: any) {
+    try {
+      const { isSignedIn, nextStep } = await signIn({ username: email, password });
+      if (isSignedIn) {
+        const session = await this.getSession();
+        return { isSignedIn, nextStep, session };
+      }
+      return { isSignedIn, nextStep };
+    } catch (error) {
+      console.error('Error signing in:',"failed" );  
+      throw new Error("failed");
+    }
+  }
+
+  async getSession() {
+    try {
+      const session = await fetchAuthSession();
+      return session;
+    } catch (error) {
+      console.error('Error fetching auth session:', error);
+      throw error;
+    }
+  }
+
+  async signOut() {
+    try {
+      await signOut();
+    } catch (error) {
+      console.error('Error signing out:', error);
+      throw error;
+    }
+  }
+
+  async getCurrentUser() {
+    try {
+      const user = await getCurrentUser();
+      return user;
+    } catch (error) {
+      console.error('Error getting current user:', error);
+      return null;
+    }
+  }
+
+  async resendConfirmationCode(email: any) {
+    try {
+      await resendSignUpCode({ username: email });
+    } catch (error) {
+      console.error('Error resending confirmation code:', error);
+      throw error;
+    }
+  }
+
+  async resetPassword(email: any) {
+    try {
+      const output = await resetPassword({ username: email });
+      return output;
+    } catch (error) {
+      console.error('Error resetting password:', error);
+      throw error;
+    }
+  }
+
+  async confirmResetPassword(email: any, confirmationCode: any, newPassword: any) {
+    try {
+      await confirmResetPassword({ username: email, confirmationCode, newPassword });
+    } catch (error) {
+      console.error('Error confirming password reset:', error);
+      throw error;
+    }
+  }
+
+}
+
+
+
+
+export default new AuthService();
 
  //here=>
  //Amplify.configure({

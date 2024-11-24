@@ -2,13 +2,38 @@ import React, { useState } from "react";
 
 const FeedbackForm: React.FC = () => {
   //storing the input
-  const [feedbackType, setFeedbackType] = useState("normal");
   const [message, setMessage] = useState("");
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    console.log({ feedbackType, message });
-    alert("Feedback submitted successfully!");
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault(); //prevents the page from refreshing
+
+    //sending those data to lambda to take it to sagemaker...
+    const payload = {
+      message: message,
+    };
+
+    console.log({ payload });
+
+    const apiUrl = import.meta.env.VITE_API_URL;
+    try {
+        const response = await fetch(`${apiUrl}/Feedback`, {
+          //send the form data to a server="lambda" and wait for lambda to respond
+          method: "POST",
+          headers: {
+            //tells the server the format of the data
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(payload),
+        });
+        if (response.status === 200) 
+          alert("Feedback submitted successfully!");
+        else
+          alert("Failed to send your Feedback. Please try again.");
+    } catch (error) {
+      console.error("Error", error);
+      alert("Failed to send your Feedback. Please try again.");
+    }
+    
   };
 
   return (
@@ -30,7 +55,7 @@ const FeedbackForm: React.FC = () => {
           fontSize: "28px",
         }}
       >
-        Submit Feedback
+        Report Problem
       </h2>
       <form
         onSubmit={handleSubmit}
@@ -58,7 +83,7 @@ const FeedbackForm: React.FC = () => {
               display: "block",
             }}
           >
-            Feedback Type:
+            {/* Feedback Type:
           </label>
           <select
             value={feedbackType}
@@ -90,7 +115,7 @@ const FeedbackForm: React.FC = () => {
               marginBottom: "0.5rem",
               display: "block",
             }}
-          >
+          > */}
             Message:
           </label>
           <textarea

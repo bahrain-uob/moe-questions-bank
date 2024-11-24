@@ -8,7 +8,9 @@ export function ApiStack({ stack }: StackContext) {
 
   // Create the HTTP API
   const api = new Api(stack, "Api", {
-    defaults: {},
+    // defaults: {
+    //   authorizer: "iam",
+    // },
     routes: {
       // Sample TypeScript lambda function
       "POST /generate": {
@@ -17,6 +19,15 @@ export function ApiStack({ stack }: StackContext) {
           runtime: "nodejs20.x",
           timeout: "180 seconds",
           permissions: ["sagemaker"],
+        },
+      },
+
+      "POST /Feedback": {
+        function: {
+          handler: "packages/functions/src/Feedback.handler",
+          runtime: "nodejs20.x",
+          timeout: "180 seconds",
+          permissions: ["sns"],
         },
       },
     },

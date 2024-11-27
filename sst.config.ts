@@ -30,8 +30,8 @@ export default {
       app.stack(DBStack)
       .stack(ApiStack)
       .stack(FrontendStack)
-      .stack(AuthStack)
-      .stack(SNSStack);
+      .stack(AuthStack);
+      //.stack(SNSStack);
 
     }
   }

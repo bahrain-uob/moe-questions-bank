@@ -12,11 +12,9 @@ const FeedbackForm: React.FC = () => {
       message: message,
     };
 
-    console.log({ payload });
-
     const apiUrl = import.meta.env.VITE_API_URL;
     try {
-        const response = await fetch(`${apiUrl}/Feedback`, {
+        const response = await fetch(`${apiUrl}/feedback`, {
           //send the form data to a server="lambda" and wait for lambda to respond
           method: "POST",
           headers: {

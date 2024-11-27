@@ -4,6 +4,7 @@ const sns = new AWS.SNS();
 
 export async function handler(event: any) {
     const topicArn = process.env.TOPIC_ARN;
+    console.log(topicArn);
     const data = JSON.parse(event.body);
     try { 
         const response = await sns

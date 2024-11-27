@@ -1,4 +1,4 @@
-import { Api, StackContext, use } from "sst/constructs";
+import { Api, StackContext, Topic, use } from "sst/constructs";
 import { DBStack } from "./DBStack";
 import { CacheHeaderBehavior, CachePolicy } from "aws-cdk-lib/aws-cloudfront";
 import { Duration } from "aws-cdk-lib/core";
@@ -6,6 +6,7 @@ import { Duration } from "aws-cdk-lib/core";
 export function ApiStack({ stack }: StackContext) {
   const { table } = use(DBStack);
 
+  const topic = new Topic(stack, "Report");
   // Create the HTTP API
   const api = new Api(stack, "Api", {
     // defaults: {
@@ -22,11 +23,14 @@ export function ApiStack({ stack }: StackContext) {
         },
       },
 
-      "POST /Feedback": {
+      "POST /feedback": {
         function: {
-          handler: "packages/functions/src/Feedback.handler",
+          handler: "packages/functions/src/feedback.handler",
           runtime: "nodejs20.x",
           timeout: "180 seconds",
+          environment: {
+            TOPIC_ARN: topic.topicArn, // Add the ARN to the environment
+          },
           permissions: ["sns"],
         },
       },

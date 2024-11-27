@@ -21,13 +21,19 @@ import { StackContext, Topic } from "sst/constructs";
 import * as snsSubscriptions from "aws-cdk-lib/aws-sns-subscriptions";  // Import subscription classes
 
 export function SNSStack({ stack }: StackContext) {
-  // Create the SNS topic
-  const topic = new Topic(stack, "Report");
+    // Create the SNS topic
+    const topic = new Topic(stack, "Report");
 
-  // Add an email subscription to the topic
-  topic.addSubscription(new snsSubscriptions.Email({
-    endpoint: "202109479@stu.uob.edu.bh",  // Replace with a valid email address
-  }));
+//   // Add an email subscription to the topic
+//   new snsSubscriptions.EmailSubscription({
+//     topic: topic,  // Access the underlying CDK Topic object
+//     endpoint: "XX@example.com",  // Email address for subscription
+//   });
 
-  return topic;
+
+
+    // stack.addOutputs({
+    //     TOPIC_ARN: topic.topicArn
+    // });
+    return topic;
 }

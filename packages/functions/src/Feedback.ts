@@ -13,7 +13,6 @@ export async function handler(event: any) {
             Subject: "Problem with exam system!!",
         })
         .promise();
-
         console.log("Message sent:", response);
         return {
             statusCode: 200,

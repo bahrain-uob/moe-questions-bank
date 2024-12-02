@@ -21,6 +21,31 @@ export function ApiStack({ stack }: StackContext) {
         },
       },
 
+      
+  //    "GET /pending-exams": {
+    //    function: {
+    //    handler: "packages/functions/src/getPendingExams.handler",
+    //    runtime: "nodejs20.x",
+    //    timeout: "30 seconds",
+    //    permissions: ["dynamodb"],
+    //    environment: {
+     //   TABLE_NAME: "ExamsTable",
+    // },
+  // },
+// },
+ 
+    // "POST /update-exam/{id}": {
+     //  function: {
+     //   handler: "packages/functions/src/updateExam.handler",
+     //   runtime: "nodejs20.x",
+     //   timeout: "30 seconds",
+     //   permissions: ["dynamodb"],
+     //   environment: {
+      //  TABLE_NAME: "ExamsTable",
+     //},
+  // },
+ //},
+
       "POST /feedback": {
         function: {
           handler: "packages/functions/src/feedback.handler",
@@ -46,6 +71,9 @@ export function ApiStack({ stack }: StackContext) {
       "Content-Type",
       "Referer"
     ),
+  });
+  stack.addOutputs({
+    ApiEndpoint: api.url,
   });
 
   return { api, apiCachePolicy };

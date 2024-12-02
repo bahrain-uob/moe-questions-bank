@@ -2,13 +2,11 @@ import React, { useState } from "react";
 import invokeApig from "../lib/callAPI.ts";
 
 const FeedbackForm: React.FC = () => {
-  //storing the input
   const [message, setMessage] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault(); //prevents the page from refreshing
+    e.preventDefault();
 
-    //sending those data to lambda to take it to sagemaker...
     const payload = {
       message: message,
     };
@@ -20,40 +18,35 @@ const FeedbackForm: React.FC = () => {
         headers: { "Content-Type": "application/json" },
         body: payload,
       });
-        
-        
-        
-      //   await fetch(`${apiUrl}/feedback`, {
-      //   //send the form data to a server="lambda" and wait for lambda to respond
-      //   method: "POST",
-      //   headers: {
-      //     //tells the server the format of the data
-      //     "Content-Type": "application/json",
-      //   },
-      //   body: JSON.stringify(payload),
-      // });
-      if (response.status === 200) alert("Feedback submitted successfully!");
-      else alert("Failed to send your Feedback. Please try again.");
+
+      if (response.status === 200) {
+        alert("Feedback submitted successfully!");
+        setMessage(""); // Clear the textarea after successful submission
+      } else {
+        alert("Failed to send your feedback. Please try again.");
+      }
     } catch (error) {
       console.error("Error", error);
-      alert("Failed to send your Feedback. Please try again.");
+      alert("Failed to send your feedback. Please try again.");
     }
   };
 
   return (
     <div
       style={{
-        flex: 1,
-        backgroundColor: "#f9f9f9",
+        backgroundColor: "rgba(255, 255, 255, 0.8)",
         padding: "2rem",
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
+        borderRadius: "16px",
+        boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
+        maxWidth: "800px",
+        margin: "2rem auto",
+        fontFamily: "Arial, sans-serif",
       }}
     >
       <h2
         style={{
-          fontFamily: "Georgia, serif",
+          textAlign: "center",
+          fontWeight: "bold",
           color: "#333",
           marginBottom: "2rem",
           fontSize: "28px",
@@ -61,30 +54,15 @@ const FeedbackForm: React.FC = () => {
       >
         Report Problem
       </h2>
-      <form
-        onSubmit={handleSubmit}
-        style={{
-          width: "100%",
-          maxWidth: "600px",
-          backgroundColor: "#fff",
-          padding: "2rem",
-          borderRadius: "8px",
-          boxShadow: "0 4px 8px rgba(0,0,0,0.1)",
-          fontFamily: "Arial, sans-serif",
-        }}
-      >
-        <div
-          style={{
-            marginBottom: "1.5rem",
-          }}
-        >
+      <form onSubmit={handleSubmit}>
+        <div style={{ marginBottom: "1.5rem" }}>
           <label
             style={{
               fontSize: "16px",
               fontWeight: "bold",
               color: "#4b4b4b",
-              marginBottom: "0.5rem",
               display: "block",
+              marginBottom: "0.5rem",
             }}
           >
             Message:
@@ -97,7 +75,7 @@ const FeedbackForm: React.FC = () => {
               width: "100%",
               height: "120px",
               padding: "0.75rem",
-              borderRadius: "4px",
+              borderRadius: "8px",
               border: "1px solid #ccc",
               fontSize: "14px",
               resize: "none",
@@ -108,13 +86,12 @@ const FeedbackForm: React.FC = () => {
         <button
           type="submit"
           style={{
-            display: "block",
             width: "100%",
             backgroundColor: "#4b4b4b",
             color: "#fff",
             padding: "1rem",
             border: "none",
-            borderRadius: "4px",
+            borderRadius: "8px",
             fontSize: "16px",
             fontWeight: "bold",
             cursor: "pointer",

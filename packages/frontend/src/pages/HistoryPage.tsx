@@ -1,23 +1,33 @@
-import React, { useState, useEffect } from "react"; //useEffect: Do something when something changes
+import React, { useState, useEffect } from "react";
 
 const HistoryPage: React.FC = () => {
   const [history, setHistory] = useState<any[]>([]);
   const [filteredHistory, setFilteredHistory] = useState<any[]>([]);
   const [gradeFilter, setGradeFilter] = useState("");
   const [subjectFilter, setSubjectFilter] = useState("");
+  const [statusFilter, setStatusFilter] = useState(""); // Add filter for exam status (Approved/Rejected)
 
-  // Mocked data fetch
-  //This part runs once when the page is loaded
+  // Mocked data fetch (adjust with actual API/DynamoDB call)
   useEffect(() => {
     const fetchHistory = async () => {
       try {
-        // Replace with  actual API call to fetch exam history
+        //examples
         const mockExams = [
           {
             id: 1,
             grade: "Secondary Grade 1",
             subject: "ENG 102",
             file: "Grade1_ENG-102.pdf",
+            status: "Approved",
+            
+          },
+          {
+            id: 2,
+            grade: "Secondary Grade 2",
+            subject: "ENG 201",
+            file: "Grade2_ENG-201.pdf",
+            status: "Rejected",
+            
           },
         ];
         setHistory(mockExams);
@@ -28,14 +38,15 @@ const HistoryPage: React.FC = () => {
     };
 
     fetchHistory();
-  }, []); //[dependency]:This is a list of things React should "watch."If any of the dependencies change, React will re-run the function.
+  }, []);
 
   // Apply filters
   const handleFilter = () => {
     const filtered = history.filter(
       (exam) =>
         (gradeFilter ? exam.grade === gradeFilter : true) &&
-        (subjectFilter ? exam.subject === subjectFilter : true)
+        (subjectFilter ? exam.subject === subjectFilter : true) &&
+        (statusFilter ? exam.status === statusFilter : true)
     );
     setFilteredHistory(filtered);
   };
@@ -60,7 +71,7 @@ const HistoryPage: React.FC = () => {
           textAlign: "center",
         }}
       >
-        Generated Exam History
+        Exam Approval History
       </h2>
 
       {/* Filter Section */}
@@ -106,7 +117,7 @@ const HistoryPage: React.FC = () => {
             <option value="">All Grades</option>
             <option value="Secondary Grade 1">Secondary Grade 1</option>
             <option value="Secondary Grade 2">Secondary Grade 2</option>
-            <option value="Secondary Grade 2">Secondary Grade 3</option>
+            <option value="Secondary Grade 3">Secondary Grade 3</option>
           </select>
         </div>
         <div>
@@ -135,10 +146,36 @@ const HistoryPage: React.FC = () => {
             <option value="">All Subjects</option>
             <option value="ENG 101">ENG 101</option>
             <option value="ENG 102">ENG 102</option>
-            <option value="ENG 102">ENG 102</option>
             <option value="ENG 201">ENG 201</option>
             <option value="ENG 301">ENG 301</option>
-            <option value="ENG 218">ENG 218</option>
+          </select>
+        </div>
+        <div>
+          <label
+            style={{
+              fontSize: "14px",
+              fontWeight: "bold",
+              color: "#555",
+            }}
+          >
+            Status:
+          </label>
+          <select
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value)}
+            style={{
+              display: "block",
+              width: "200px",
+              padding: "0.5rem",
+              borderRadius: "4px",
+              border: "1px solid #ccc",
+              marginTop: "0.5rem",
+              fontSize: "14px",
+            }}
+          >
+            <option value="">All Statuses</option>
+            <option value="Approved">Approved</option>
+            <option value="Rejected">Rejected</option>
           </select>
         </div>
         <button
@@ -178,7 +215,7 @@ const HistoryPage: React.FC = () => {
             marginBottom: "1rem",
           }}
         >
-          Exam Results
+          Exam History
         </h3>
         <ul
           style={{
@@ -198,13 +235,17 @@ const HistoryPage: React.FC = () => {
                   borderBottom: "1px solid #ccc",
                 }}
               >
-                <span style={{ color: "#333", fontSize: "16px" }}>
-                  {exam.grade} - {exam.subject}
-                </span>
+                <div>
+                  <span style={{ color: "#333", fontSize: "16px" }}>
+                    {exam.grade} - {exam.subject} (
+                    <strong>{exam.status}</strong>)
+                  </span>
+                  
+                </div>
                 <a
-                  href={`https://your-s3-bucket-url/${exam.file}`} // Replace with actual DynamoDB or s3??
-                  target="_blank" //This tells the browser to open the link in a new tab
-                  rel="noopener noreferrer" //security:Prevents the new tab from being able to access the page that opened it and Prevents the browser from sending information about the referring page
+                  href={`https://your-s3-bucket-url/${exam.file}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
                   style={{
                     textDecoration: "none",
                     backgroundColor: "#4b4b4b",

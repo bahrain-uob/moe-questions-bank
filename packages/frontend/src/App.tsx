@@ -6,6 +6,7 @@ import {
   Navigate,
 } from "react-router-dom"; // Navigation between pages.
 import Dashboard from "./pages/Dashboard";
+import AdminDashboard from "./pages/AdminDashboard";//admin dashboard
 import Login from "./pages/LoginPage";
 import { AppContext, AppContextType } from "./lib/contextLib";
 import "@aws-amplify/ui-react/styles.css";
@@ -29,8 +30,9 @@ const App: React.FC = () => {
 
           {/* Redirect '/' to /dashboard */}
           <Route path="/" element={<Navigate to="/dashboard" replace />} />
+            
 
-          {/* Protected Routes */}
+            {/* User Dashboard */}
           <Route
             path="/dashboard"
             element={
@@ -39,6 +41,27 @@ const App: React.FC = () => {
               </ProtectedRoute>
             }
           />
+
+           {/* Admin Dashboard */}
+           <Route
+            path="/admin-dashboard"  // Ensure this path matches the AdminDashboard component
+            element={
+              <ProtectedRoute>
+                <AdminDashboard />  {/* Correct component for Admin Dashboard */}
+              </ProtectedRoute>
+            }
+          />
+
+
+          {/* Protected Routes 
+          <Route
+            path="/dashboard"
+            element={
+              <ProtectedRoute>
+                <Dashboard />
+              </ProtectedRoute>
+            }
+          />*/}
           {/* <Route
             path="/exam-form"
             element={

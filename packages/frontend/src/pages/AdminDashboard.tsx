@@ -2,16 +2,16 @@ import React, { useState } from "react";
 import MOELogo from "../assets/moe_LOGO.png"; // Ministry of Education logo
 import HomeIcon from "../assets/home icon (1).png"; // Home icon
 import BackgroundImage from "../assets/BG.jpg"; // Background image
-import ExamForm from "./ExamForm";
-import FeedbackForm from "./FeedbackForm";
+//import ExamApproval from "./ExamApproval";
 import HistoryPage from "./HistoryPage";
+import FeedbackForm from "./FeedbackForm";
 import { signOut } from "aws-amplify/auth";
 import { useNavigate } from "react-router-dom";
 import { useAppContext } from "../lib/contextLib";
 
-interface UserDashboardProps {}
+interface AdminDashboardProps {}
 
-const UserDashboard: React.FC<UserDashboardProps> = () => {
+const AdminDashboard: React.FC<AdminDashboardProps> = () => {
   const navigate = useNavigate();
   const { userHasAuthenticated } = useAppContext();
   const [activePage, setActivePage] = useState("home");
@@ -24,11 +24,11 @@ const UserDashboard: React.FC<UserDashboardProps> = () => {
 
   const renderContent = () => {
     switch (activePage) {
-      case "generateExam":
-        return <ExamForm />;
-      case "seeExams":
+      case "approveExams":
+      //  return <ExamApproval />;
+      case "examHistory":
         return <HistoryPage />;
-      case "feedback":
+      case "reportProblem":
         return <FeedbackForm />;
       default:
         return (
@@ -44,7 +44,60 @@ const UserDashboard: React.FC<UserDashboardProps> = () => {
             }}
           >
             <div
-              onClick={() => setActivePage("generateExam")}
+              onClick={() => setActivePage("approveExams")}
+              style={{
+                width: "300px",
+                height: "300px",
+                backgroundColor: "white",
+                color: "#d32f2f",
+                display: "flex",
+                flexDirection: "column",
+                justifyContent: "center",
+                alignItems: "center",
+                borderRadius: "16px",
+                fontSize: "20px",
+                fontWeight: "bold",
+                textAlign: "center",
+                cursor: "pointer",
+                boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
+                transition: "transform 0.3s, box-shadow 0.3s",
+                position: "relative",
+              }}
+              onMouseEnter={(e) => {
+                const card = e.currentTarget;
+                card.style.transform = "scale(1.05)";
+                card.style.boxShadow = "0 8px 15px rgba(0, 0, 0, 0.3)";
+              }}
+              onMouseLeave={(e) => {
+                const card = e.currentTarget;
+                card.style.transform = "scale(1)";
+                card.style.boxShadow = "0 4px 8px rgba(0, 0, 0, 0.1)";
+              }}
+            >
+              <span style={{fontWeight: "bold",fontSize: "34px",marginBottom: "0.5rem", }}>Pending Exams</span>
+              <p style={{ fontSize: "14px", fontWeight: "normal", textAlign: "center",margin: "0 auto", color:"black",maxWidth: "80%",}}>
+                See all the generated exams waiting for your approval.
+              </p>
+              <span
+                style={{
+                  position: "absolute",
+                  bottom: "10px",
+                  right: "10px",
+                  backgroundColor: "#d32f2f",
+                  color: "white",
+                  width: "30px",
+                  height: "30px",
+                  borderRadius: "50%",
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
+                }}
+              >
+                
+              </span>
+            </div>
+            <div
+              onClick={() => setActivePage("examHistory")}
               style={{
                 width: "300px",
                 height: "300px",
@@ -73,15 +126,13 @@ const UserDashboard: React.FC<UserDashboardProps> = () => {
                 card.style.boxShadow = "0 4px 8px rgba(0, 0, 0, 0.1)";
               }}
             >
-              <span style={{ fontWeight: "bold", fontSize: "34px", marginBottom: "0.5rem" }}>
-                Generate Exam
-              </span>
-              <p style={{ fontSize: "14px", fontWeight: "normal", textAlign: "center", color: "black", maxWidth: "80%" }}>
-                Create new exams using uploaded materials.
+              <span style={{fontWeight: "bold",fontSize: "34px",marginBottom: "0.5rem", }}>Exams History</span>
+              <p style={{ fontSize: "14px", fontWeight: "normal", textAlign: "center",margin: "0 auto", color:"black",maxWidth: "80%", }}>
+                See all the generated exams.
               </p>
             </div>
             <div
-              onClick={() => setActivePage("seeExams")}
+              onClick={() => setActivePage("reportProblem")}
               style={{
                 width: "300px",
                 height: "300px",
@@ -110,48 +161,9 @@ const UserDashboard: React.FC<UserDashboardProps> = () => {
                 card.style.boxShadow = "0 4px 8px rgba(0, 0, 0, 0.1)";
               }}
             >
-              <span style={{ fontWeight: "bold", fontSize: "34px", marginBottom: "0.5rem" }}>
-                See Exams
-              </span>
-              <p style={{ fontSize: "14px", fontWeight: "normal", textAlign: "center", color: "black", maxWidth: "80%" }}>
-                View all previously generated exams.
-              </p>
-            </div>
-            <div
-              onClick={() => setActivePage("feedback")}
-              style={{
-                width: "300px",
-                height: "300px",
-                backgroundColor: "white",
-                color: "#d32f2f",
-                display: "flex",
-                flexDirection: "column",
-                justifyContent: "center",
-                alignItems: "center",
-                borderRadius: "16px",
-                fontSize: "20px",
-                fontWeight: "bold",
-                textAlign: "center",
-                cursor: "pointer",
-                boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
-                transition: "transform 0.3s, box-shadow 0.3s",
-              }}
-              onMouseEnter={(e) => {
-                const card = e.currentTarget;
-                card.style.transform = "scale(1.05)";
-                card.style.boxShadow = "0 8px 15px rgba(0, 0, 0, 0.3)";
-              }}
-              onMouseLeave={(e) => {
-                const card = e.currentTarget;
-                card.style.transform = "scale(1)";
-                card.style.boxShadow = "0 4px 8px rgba(0, 0, 0, 0.1)";
-              }}
-            >
-              <span style={{ fontWeight: "bold", fontSize: "34px", marginBottom: "0.5rem" }}>
-                Report Problem
-              </span>
-              <p style={{ fontSize: "14px", fontWeight: "normal", textAlign: "center", color: "black", maxWidth: "80%" }}>
-                Report issues to the admin.
+              <span style={{fontWeight: "bold",fontSize: "34px",marginBottom: "0.5rem", }}>Report Problem</span>
+              <p style={{ fontSize: "14px", fontWeight: "normal", textAlign: "center",margin: "0 auto", color:"black",maxWidth: "80%", }}>
+                Report a problem regarding the website to the admin.
               </p>
             </div>
           </div>
@@ -167,7 +179,7 @@ const UserDashboard: React.FC<UserDashboardProps> = () => {
         backgroundPosition: "center",
         backgroundAttachment: "fixed",
         height: "100vh",
-        width: "100vw",
+        width: "100vw", 
         overflowY: "auto",
         margin: 0,
         padding: 0,
@@ -194,70 +206,119 @@ const UserDashboard: React.FC<UserDashboardProps> = () => {
             style={{ height: "50px", cursor: "pointer" }}
             onClick={() => setActivePage("home")}
           />
-          <button
-            onClick={() => setActivePage("generateExam")}
-            style={{
-              backgroundColor: "#d32f2f",
-              color: "white",
-              padding: "0.5rem 1rem",
-              borderRadius: "16px",
-              fontSize: "16px",
-              fontWeight: "bold",
-              cursor: "pointer",
-              border: "none",
-              transition: "transform 0.3s, box-shadow 0.3s",
-            }}
-          >
-            Generate Exam
-          </button>
-          <button
-            onClick={() => setActivePage("seeExams")}
-            style={{
-              backgroundColor: "#d32f2f",
-              color: "white",
-              padding: "0.5rem 1rem",
-              borderRadius: "16px",
-              fontSize: "16px",
-              fontWeight: "bold",
-              cursor: "pointer",
-              border: "none",
-              transition: "transform 0.3s, box-shadow 0.3s",
-            }}
-          >
-            See Exams
-          </button>
-          <button
-            onClick={() => setActivePage("feedback")}
-            style={{
-              backgroundColor: "#d32f2f",
-              color: "white",
-              padding: "0.5rem 1rem",
-              borderRadius: "16px",
-              fontSize: "16px",
-              fontWeight: "bold",
-              cursor: "pointer",
-              border: "none",
-              transition: "transform 0.3s, box-shadow 0.3s",
-            }}
-          >
-            Report Problem
-          </button>
-          <button
-            onClick={handleSignOut}
-            style={{
-              backgroundColor: "#d32f2f",
-              color: "white",
-              padding: "0.5rem 1rem",
-              borderRadius: "16px",
-              fontSize: "16px",
-              fontWeight: "bold",
-              cursor: "pointer",
-              border: "none",
-              transition: "transform 0.3s, box-shadow 0.3s",
-            }}
-          >
-            Sign-out
-          </button>
+         <button
+  onClick={() => setActivePage("approveExams")}
+  style={{
+    backgroundColor: "#d32f2f",
+    color: "white",
+    padding: "0.5rem 1rem",
+    borderRadius: "16px",
+    fontSize: "16px",
+    fontWeight: "bold",
+    cursor: "pointer",
+    border: "none",
+    boxShadow: "none",
+    outline: "none",
+    transition: "transform 0.3s, box-shadow 0.3s",
+  }}
+  onMouseEnter={(e) => {
+    const btn = e.currentTarget;
+    btn.style.transform = "scale(1.05)"; // Slight scale-up
+    btn.style.boxShadow = "0 4px 10px rgba(0, 0, 0, 0.3)"; // Add shadow
+  }}
+  onMouseLeave={(e) => {
+    const btn = e.currentTarget;
+    btn.style.transform = "scale(1)"; // Reset scale
+    btn.style.boxShadow = "none"; // Reset shadow
+  }}
+>
+  Pending Exams
+</button>
+<button
+  onClick={() => setActivePage("examHistory")}
+  style={{
+    backgroundColor: "#d32f2f",
+    color: "white",
+    padding: "0.5rem 1rem",
+    borderRadius: "16px",
+    fontSize: "16px",
+    fontWeight: "bold",
+    cursor: "pointer",
+    border: "none",
+    boxShadow: "none",
+    outline: "none",
+    transition: "transform 0.3s, box-shadow 0.3s",
+  }}
+  onMouseEnter={(e) => {
+    const btn = e.currentTarget;
+    btn.style.transform = "scale(1.05)";
+    btn.style.boxShadow = "0 4px 10px rgba(0, 0, 0, 0.3)";
+  }}
+  onMouseLeave={(e) => {
+    const btn = e.currentTarget;
+    btn.style.transform = "scale(1)";
+    btn.style.boxShadow = "none";
+  }}
+>
+  Exams History
+</button>
+<button
+  onClick={() => setActivePage("reportProblem")}
+  style={{
+    backgroundColor: "#d32f2f",
+    color: "white",
+    padding: "0.5rem 1rem",
+    borderRadius: "16px",
+    fontSize: "16px",
+    fontWeight: "bold",
+    cursor: "pointer",
+    border: "none",
+    boxShadow: "none",
+    outline: "none",
+    transition: "transform 0.3s, box-shadow 0.3s",
+  }}
+  onMouseEnter={(e) => {
+    const btn = e.currentTarget;
+    btn.style.transform = "scale(1.05)";
+    btn.style.boxShadow = "0 4px 10px rgba(0, 0, 0, 0.3)";
+  }}
+  onMouseLeave={(e) => {
+    const btn = e.currentTarget;
+    btn.style.transform = "scale(1)";
+    btn.style.boxShadow = "none";
+  }}
+>
+  Report Problem
+</button>
+<button
+  onClick={handleSignOut}
+  style={{
+    backgroundColor: "#d32f2f",
+    color: "white",
+    padding: "0.5rem 1rem",
+    borderRadius: "16px",
+    fontSize: "16px",
+    fontWeight: "bold",
+    cursor: "pointer",
+    border: "none",
+    boxShadow: "none",
+    outline: "none",
+    transition: "transform 0.3s, box-shadow 0.3s",
+  }}
+  onMouseEnter={(e) => {
+    const btn = e.currentTarget;
+    btn.style.transform = "scale(1.05)";
+    btn.style.boxShadow = "0 4px 10px rgba(0, 0, 0, 0.3)";
+  }}
+  onMouseLeave={(e) => {
+    const btn = e.currentTarget;
+    btn.style.transform = "scale(1)";
+    btn.style.boxShadow = "none";
+  }}
+>
+  Sign-out
+</button>
+
         </div>
       </div>
       <div
@@ -268,8 +329,9 @@ const UserDashboard: React.FC<UserDashboardProps> = () => {
           margin: "1rem auto",
           maxWidth: "1200px",
           width: "100%",
-          boxShadow: "none",
-          outline: "none",
+          border: "none", // Ensures no border
+          boxShadow: "none", // Removes the black shadow
+          outline: "none", // Removes focus outline
         }}
       >
         {renderContent()}
@@ -278,4 +340,4 @@ const UserDashboard: React.FC<UserDashboardProps> = () => {
   );
 };
 
-export default UserDashboard;
+export default AdminDashboard;

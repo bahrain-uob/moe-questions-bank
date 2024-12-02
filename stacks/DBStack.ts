@@ -15,6 +15,17 @@ export function DBStack({ stack, app }: StackContext) {
         primaryIndex: { partitionKey: "counter" },
     });
 
+    // Add the ExamsTable to store exam records
+   // const ExamsTable =new Table(stack, "ExamsTable",{
+     //   fields:{
+       //     id:"string",//id of exam
+         //   status:"string",//pending?approved?rejected?
+          //  userId:"string",//who generated exam
+          //  generatedAt:"string",//when exam generated
+        //},
+        //primaryIndex:{partitionKey:"id"},
+      //});
+
     // Create an RDS database
     const mainDBLogicalName = "MainDatabase";
     // Define output/export attributes names
@@ -59,6 +70,10 @@ export function DBStack({ stack, app }: StackContext) {
             },
         });
     }
+  //  stack.addOutputs({
+    //    ExamsTableName: ExamsTable.tableName,
+
+    //});
 
     return {table, db};
 }

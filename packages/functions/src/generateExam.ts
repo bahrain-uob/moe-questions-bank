@@ -28,37 +28,70 @@ export async function generate(event: APIGatewayProxyEvent) {
   const question_types = data.question_types;
   const duration = data.duration;
   const total_mark = data.total_mark;
+  const like_previous_exams = data.like_previous_exams
 
   //Format the question types list
-  let question_types_str = "";
-  if (question_types) {
-    for (let i = 0; i < question_types.length; i++) {
-      question_types_str += question_types[i];
-      if (i !== question_types.length - 1) {
-        question_types_str += ", ";
-      }
-    }
-  }
+  // let question_types_str = "";
+  // if (question_types) {
+  //   for (let i = 0; i < question_types.length; i++) {
+  //     question_types_str += question_types[i];
+  //     if (i !== question_types.length - 1) {
+  //       question_types_str += ", ";
+  //     }
+  //   }
+  // }
+
 
   //relevant_info is to be retrieved from the analyzed data
   const relevant_info = "";
-
+  let prompt = "";
   try {
-    const prompt = `
-      As a school exam generator and create an ${subject} exam for grade ${class_level} students. 
+    if(like_previous_exams){
+      prompt = `
+        Act as a school exam generator and create an exam for ENG102 students. The exam should have the following structure:
 
-      These are the types of questions to include: ${question_types_str}. Make sure to include all of them.
+        Listening Section (Total: 10 marks)
+          generate Listening script put it at appendix
+          Question 1: A True or False question worth 5 marks.
+          Question 2: A Match the Statements question worth 5 marks.
 
-      The exam duration should not exceed ${duration} hour.
+        Reading Section (Total: 20 marks)
+          Part 1:
+            provide an article.
+            Include two sub-questions:
+              a. Match the paragraphs with headings (5 marks).
+              b. Short questions and answers (5 marks).
+          Part 2:
+            provide another article.
+            Include two sub-questions:
+              a. True or False (5 marks).
+              b. Match words with their definitions (5 marks).
 
-      The exam should have a total mark of ${total_mark} that should be distributed over the entire exam according to each question's weight.
+          Writing Section (Total: 20 marks)
+            Question 1: A writing task worth 10 marks.
+            Question 2: Another writing task worth 10 marks.
 
-      Structure the exam appropriately where each question is correctly labeled and has its mark beside it.
-
-      Take to consideration this relevant information: ${relevant_info}
-
-      Make sure to return only the exam and nothing else.
-    `;
+          The total duration of the exam should not exceed 2 hours.
+          Take to consideration this relevant information: ${relevant_info}
+      `;
+    }
+    else{
+      prompt = `
+        Act as a school exam generator and create an exam for grade ${class_level} ${subject} students. 
+        The exam should have only the following :   
+      `;
+      // Dynamically build the prompt for each question type
+      Object.entries(question_types).forEach(([type, count]) => {
+        if (count > 0) {
+          prompt += `include ${count} ${type} question${count > 1 ? "s" : ""}, `;
+        }
+      });
+      prompt += `
+        The total duration of the exam should not exceed ${duration} hours with total ${total_mark} marks.
+        Take to consideration this relevant information: ${relevant_info}
+      `;
+    }
+    
 
     const conversation = [
       {
@@ -70,10 +103,13 @@ export async function generate(event: APIGatewayProxyEvent) {
     const command = new ConverseCommand({
       modelId,
       messages: conversation,
-      inferenceConfig: { maxTokens: 512, temperature: 0.5, topP: 0.9 },
+      inferenceConfig: { maxTokens: 1200, temperature: 0.5, topP: 0.9 },
     });
 
     const response = await client.send(command);
+
+    
+
 
     // Extract and print the response text.
     const responseText = response.output.message.content[0].text;

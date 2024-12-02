@@ -4,13 +4,23 @@ import invokeApig from "../lib/callAPI.ts";
 //storing user input
 const ExamForm: React.FC = () => {
   //store the input
-  const [grade, setGrade] = useState("");
-  const [subject, setSubject] = useState("");
+  const [grade, setGrade] = useState("Grade 10"); //Default to "Grade 10"
+  const [subject, setSubject] = useState("ENG102"); // Default to "ENG102"
   const [duration, setDuration] = useState("");
   const [totalMark, setMark] = useState("");
   const [questionTypes, setQuestionTypes] = useState<string[]>([]);
+  const [questionCounts, setQuestionCounts] = useState({
+    MCQ: 0,
+    Essay: 0,
+    TrueFalse: 0,
+    FillInTheBlank: 0,
+    ShortAnswer: 0,
+  });
+  
   const [responseResult, setResponseResult] = useState<string>(""); // State to store the API response
   const [loading, setLoading] = useState(false);
+  const [likePreviousExams, setLikePreviousExams] = useState(true);
+
 
   //async = can use await (dor time consuming tasks)
   //the fun. takes argument (e) ,React.FormEvent means a form-event(submit the form)
@@ -19,13 +29,14 @@ const ExamForm: React.FC = () => {
 
     setLoading(true); // Start loading animation
 
-    //sending those data to lambda to take it to sagemaker...
+    //sending those data to lambda to take it to Bedrock...
     const payload = {
       class: grade,
       subject: subject,
       duration: duration,
       total_mark: totalMark,
-      question_types: questionTypes,
+      question_types: questionCounts,
+      like_previous_exams:likePreviousExams
     };
 
     console.log("Submitting exam data to the model:", payload);
@@ -108,10 +119,7 @@ const ExamForm: React.FC = () => {
               fontSize: "14px",
             }}
           >
-            <option value="">Select Grade</option>
-            <option value="Grade 10">Secondary Grade 1</option>
-            <option value="Grade 11">Secondary Grade 2</option>
-            <option value="Grade 12">Secondary Grade 3</option>
+            <option value="Grade 10">Grade 10</option>
           </select>
         </label>
 
@@ -138,17 +146,89 @@ const ExamForm: React.FC = () => {
               fontSize: "14px",
             }}
           >
-            <option value="">Select Subject</option>
-            <option value="Math">ENG 101</option>
-            <option value="Science">ENG 102</option>
-            <option value="English">ENG 102</option>
-            <option value="English">ENG 201</option>
-            <option value="English">ENG 301</option>
-            <option value="English">ENG 218</option>
+            <option value="ENG102">ENG102</option>
           </select>
         </label>
 
         <label
+      style={{
+        fontSize: "16px",
+        color: "#4b4b4b",
+        marginTop: "1rem",
+        marginBottom: "1rem",
+        display: "block",
+        fontWeight: "bold",
+      }}
+    >
+      <input
+        type="checkbox"
+        checked={likePreviousExams}
+        onChange={(e) => setLikePreviousExams(e.target.checked)}
+        style={{
+          marginRight: "0.5rem",
+        }}
+      />
+      Like Previous Exams
+    </label>
+
+
+    {likePreviousExams ? (
+  <>
+    <label
+      style={{
+        fontSize: "16px",
+        color: "#4b4b4b",
+        marginBottom: "1rem",
+        display: "block",
+        fontWeight: "bold",
+      }}
+    >
+      Duration:
+      <input
+        type="number"
+        value={2} // Fixed value
+        readOnly
+        style={{
+          display: "block",
+          width: "100%",
+          marginTop: "0.5rem",
+          padding: "0.75rem",
+          borderRadius: "4px",
+          border: "1px solid #ccc",
+          fontSize: "14px",
+        }}
+      />
+    </label>
+    <label
+      style={{
+        fontSize: "16px",
+        color: "#4b4b4b",
+        marginBottom: "1rem",
+        marginTop: "0.5rem",
+        display: "block",
+        fontWeight: "bold",
+      }}
+    >
+      Total Mark:
+      <input
+        type="number"
+        value={50} // Fixed value
+        readOnly
+        style={{
+          display: "block",
+          width: "100%",
+          marginTop: "0.5rem",
+          padding: "0.75rem",
+          borderRadius: "4px",
+          border: "1px solid #ccc",
+          fontSize: "14px",
+        }}
+      />
+    </label>
+  </>
+) : (
+  <>
+   <label
           style={{
             fontSize: "16px",
             color: "#4b4b4b",
@@ -157,6 +237,7 @@ const ExamForm: React.FC = () => {
             fontWeight: "bold",
           }}
         >
+          
           Duration:
           <input
             type="number"
@@ -177,7 +258,7 @@ const ExamForm: React.FC = () => {
           ></input>
         </label>
 
-        <fieldset
+    {/*    <fieldset
           style={{
             marginTop: "1.5rem",
             padding: "1rem",
@@ -275,7 +356,6 @@ const ExamForm: React.FC = () => {
             </label>
           </div>
         </fieldset>
-
         <label
           style={{
             fontSize: "16px",
@@ -305,6 +385,178 @@ const ExamForm: React.FC = () => {
             }}
           ></input>
         </label>
+   */}
+   <fieldset
+  style={{
+    marginTop: "1.5rem",
+    padding: "1rem",
+    border: "1px solid #ccc",
+    borderRadius: "4px",
+  }}
+>
+  <legend
+    style={{
+      fontSize: "16px",
+      color: "#4b4b4b",
+      fontWeight: "bold",
+      padding: "0 0.5rem",
+    }}
+  >
+    Question Types
+  </legend>
+  <div
+    style={{
+      display: "flex",
+      flexDirection: "column",
+      gap: "0.5rem",
+    }}
+  >
+    <label style={{ fontSize: "14px", color: "#333" }}>
+      MCQ:
+      <input
+        type="number"
+        min={0}
+        value={questionCounts.MCQ || 0}
+        onChange={(e) =>
+          setQuestionCounts((prev) => ({
+            ...prev,
+            MCQ: Number(e.target.value),
+          }))
+        }
+        style={{
+          display: "block",
+          width: "100%",
+          marginTop: "0.5rem",
+          padding: "0.5rem",
+          borderRadius: "4px",
+          border: "1px solid #ccc",
+        }}
+      />
+    </label>
+    <label style={{ fontSize: "14px", color: "#333" }}>
+      Essay:
+      <input
+        type="number"
+        min={0}
+        value={questionCounts.Essay || 0}
+        onChange={(e) =>
+          setQuestionCounts((prev) => ({
+            ...prev,
+            Essay: Number(e.target.value),
+          }))
+        }
+        style={{
+          display: "block",
+          width: "100%",
+          marginTop: "0.5rem",
+          padding: "0.5rem",
+          borderRadius: "4px",
+          border: "1px solid #ccc",
+        }}
+      />
+    </label>
+    <label style={{ fontSize: "14px", color: "#333" }}>
+      True/False:
+      <input
+        type="number"
+        min={0}
+        value={questionCounts.TrueFalse || 0}
+        onChange={(e) =>
+          setQuestionCounts((prev) => ({
+            ...prev,
+            TrueFalse: Number(e.target.value),
+          }))
+        }
+        style={{
+          display: "block",
+          width: "100%",
+          marginTop: "0.5rem",
+          padding: "0.5rem",
+          borderRadius: "4px",
+          border: "1px solid #ccc",
+        }}
+      />
+    </label>
+    <label style={{ fontSize: "14px", color: "#333" }}>
+      Fill-In-The-Blank:
+      <input
+        type="number"
+        min={0}
+        value={questionCounts.FillInTheBlank || 0}
+        onChange={(e) =>
+          setQuestionCounts((prev) => ({
+            ...prev,
+            FillInTheBlank: Number(e.target.value),
+          }))
+        }
+        style={{
+          display: "block",
+          width: "100%",
+          marginTop: "0.5rem",
+          padding: "0.5rem",
+          borderRadius: "4px",
+          border: "1px solid #ccc",
+        }}
+      />
+    </label>
+    <label style={{ fontSize: "14px", color: "#333" }}>
+      Short Answer:
+      <input
+        type="number"
+        min={0}
+        value={questionCounts.ShortAnswer || 0}
+        onChange={(e) =>
+          setQuestionCounts((prev) => ({
+            ...prev,
+            ShortAnswer: Number(e.target.value),
+          }))
+        }
+        style={{
+          display: "block",
+          width: "100%",
+          marginTop: "0.5rem",
+          padding: "0.5rem",
+          borderRadius: "4px",
+          border: "1px solid #ccc",
+        }}
+      />
+    </label>
+  </div>
+</fieldset>
+
+<label
+          style={{
+            fontSize: "16px",
+            color: "#4b4b4b",
+            marginBottom: "1rem",
+            marginTop: "0.5rem",
+            display: "block",
+            fontWeight: "bold",
+          }}
+        >
+          Total Mark:
+          <input
+            type="number"
+            min={10}
+            max={100}
+            required
+            value={totalMark}
+            onChange={(e) => setMark(e.target.value)}
+            style={{
+              display: "block",
+              width: "100%",
+              marginTop: "0.5rem",
+              padding: "0.75rem",
+              borderRadius: "4px",
+              border: "1px solid #ccc",
+              fontSize: "14px",
+            }}
+          ></input>
+        </label>
+
+  </>
+)
+}
 
         <button
           type="submit"
@@ -373,7 +625,7 @@ const ExamForm: React.FC = () => {
           readOnly
           style={{
             width: "100%",
-            height: "200px",
+            height: "800px",
             padding: "1rem",
             borderRadius: "4px",
             border: "1px solid #ccc",

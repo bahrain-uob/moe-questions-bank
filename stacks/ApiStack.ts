@@ -16,7 +16,7 @@ export function ApiStack({ stack }: StackContext) {
         function: {
           handler: "packages/functions/src/generateExam.generate",
           runtime: "nodejs20.x",
-          timeout: "180 seconds",
+          timeout: "600 seconds",
           permissions: ["bedrock"],
         },
       },

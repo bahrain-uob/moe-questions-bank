@@ -82,7 +82,7 @@ Reading Section (Total: 20 marks)
           generationConfiguration: {
             inferenceConfig: {
               textInferenceConfig: {
-                maxTokens: 512,
+                maxTokens: 3072,
                 stopSequences: [],
                 temperature: 0,
                 topP: 0.9

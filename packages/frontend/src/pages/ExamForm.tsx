@@ -40,7 +40,8 @@ const ExamForm: React.FC = () => {
 
       console.log("API Response:", response);
       alert("Successfully generated exam.");
-      setResponseResult(response.question);
+      console.log(response.output.text);
+      setResponseResult(response.output.text);
     } catch (error) {
       console.error("Error generating exam:", error);
       alert("Failed to generate exam. Please try again.");

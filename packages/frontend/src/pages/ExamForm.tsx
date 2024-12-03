@@ -139,9 +139,9 @@ const ExamForm: React.FC = () => {
             }}
           >
             <option value="">Select Subject</option>
-            <option value="Math">ENG 101</option>
-            <option value="Science">ENG 102</option>
-            <option value="English">ENG 102</option>
+            <option value="English">ENG 101</option>
+            <option value="Science">Science</option>
+            <option value="Eng102">ENG 102</option>
             <option value="English">ENG 201</option>
             <option value="English">ENG 301</option>
             <option value="English">ENG 218</option>

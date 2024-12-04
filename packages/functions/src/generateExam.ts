@@ -11,7 +11,7 @@ const knowledgeType = "KNOWLEDGE_BASE";
 const modelArn = `arn:aws:bedrock:us-east-1::foundation-model/${modelId}`;
 
 export async function generate(event: APIGatewayProxyEvent) {
-  let relevant_info = "";
+  let relevant_info = "Add listening script and reading";
 
   const prompt = `
   Act as a school exam generator and create an exam for ENG102 students. The exam should have the following structure:
@@ -112,9 +112,7 @@ export async function generate(event: APIGatewayProxyEvent) {
         type: knowledgeType,
       },
     });
-    console.log(RetrieveAndGenerateCommand)
     const response = await client.send(command);
-    console.log({hi:"hi"});
     return response;
   } catch (error) {
     return {

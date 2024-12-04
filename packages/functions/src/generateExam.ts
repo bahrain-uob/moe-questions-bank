@@ -13,7 +13,33 @@ const modelArn = `arn:aws:bedrock:us-east-1::foundation-model/${modelId}`;
 export async function generate(event: APIGatewayProxyEvent) {
   let relevant_info = "";
 
-  const prompt = "Give me Eng102 exam from the knwoledge base, mention the resources in 20 words only, be accurate";
+  const prompt = `
+  Act as a school exam generator and create an exam for ENG102 students. The exam should have the following structure:
+
+  Listening Section (Total: 10 marks)
+    generate Listening script put it at appendix (50 Word)
+    Question 1: A True or False question worth 5 marks.
+    Question 2: A Match the Statements question worth 5 marks.
+
+  Reading Section (Total: 20 marks)
+    Part 1:
+      generate an article (50 Word).
+      Include two sub-questions:
+        a. Match the paragraphs with headings (5 marks).
+        b. Short questions and answers (5 marks).
+    Part 2:
+      generate another article (50 Word).
+      Include two sub-questions:
+        a. True or False (5 marks).
+        b. Match words with their definitions (5 marks).
+
+    Writing Section (Total: 20 marks)
+      Question 1: A writing task worth 10 marks.
+      Question 2: Another writing task worth 10 marks.
+
+    The total duration of the exam should not exceed 2 hours.
+    Take to consideration this relevant information: ${relevant_info}
+`;
 
   //Handle empty body
   if (!event.body) {
@@ -54,7 +80,7 @@ export async function generate(event: APIGatewayProxyEvent) {
           generationConfiguration: {
             inferenceConfig: {
               textInferenceConfig: {
-                maxTokens: 3000,
+                maxTokens: 1000,
                 stopSequences: [],
                 temperature: 0,
                 topP: 0.9,

@@ -6,14 +6,14 @@ import { signOut } from "aws-amplify/auth";
 import { useNavigate } from "react-router-dom";
 import { useAppContext } from "../lib/contextLib";
 import { NavLink, Outlet } from "react-router-dom";
-const [filterValue] = useState("pending");
 import invokeApig from "../lib/callAPI.ts";
 
 interface UserDashboardProps {}
 
 const Dashboard: React.FC<UserDashboardProps> = () => {
   
-  const [examCount, setExamCount] = useState(0); // State to store the exam count
+  const [examCount, setExamCount] = useState(0); // State pending count name
+  const [filterValue] = useState("pending");
   const navigate = useNavigate();
   const { userHasAuthenticated } = useAppContext();
   const { userRole } = useAppContext();

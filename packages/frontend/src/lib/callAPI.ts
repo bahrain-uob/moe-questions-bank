@@ -1,6 +1,6 @@
 // @ts-ignore
 import sigV4Client from "./sigV4Client.js";
-import getCurrentUser from "./getToken.ts";
+import { getCurrentUser } from "./getToken.ts";
 import { getUserToken } from "./getToken.ts";
 import AWS from "aws-sdk";
 import getAwsCredentials from "./getIAMCred.ts";
@@ -30,9 +30,9 @@ export default async function invokeApig({
   const userToken = await getUserToken(currentUser); //User token from the cognito user pool
   await getAwsCredentials(userToken); //IAM cred based on the cognito token
 
-  const accessKey = AWS.config.credentials?.accessKeyId ?? "";
-  const secretKey = AWS.config.credentials?.secretAccessKey ?? "";
-  const sessionToken = AWS.config.credentials?.sessionToken ?? "";
+  const accessKey = await AWS.config.credentials?.accessKeyId ?? "";
+  const secretKey = await AWS.config.credentials?.secretAccessKey ?? "";
+  const sessionToken = await AWS.config.credentials?.sessionToken ?? "";
 
   if (!accessKey || !secretKey || !sessionToken) {
     throw new Error("AWS credentials are not available.");
@@ -65,9 +65,16 @@ export default async function invokeApig({
     body,
   });
 
-  if (!results.ok) {
-    throw new Error(await results.text());
-  }
+   if (!results.ok) {
+     const errorText = await results.text();
+     throw new Error(`API call failed: ${errorText}`);
+   }
 
-  return results.json();
+   const textResponse = await results.text();
+   try {
+     return textResponse ? JSON.parse(textResponse) : null;
+   } catch (error) {
+     //@ts-ignore
+     throw new Error(`Failed to parse response as JSON: ${error.message}`);
+   }
 }

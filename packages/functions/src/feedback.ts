@@ -1,29 +1,28 @@
-import AWS from "aws-sdk";
+import { SNSClient, PublishCommand } from "@aws-sdk/client-sns";
 
-const sns = new AWS.SNS();
+const snsClient = new SNSClient({ region: process.env.AWS_REGION });
 
-export async function handler(event: any) {
+export async function handler(event: { body: string }) {
   const topicArn = process.env.TOPIC_ARN;
-  console.log(topicArn);
   const data = JSON.parse(event.body);
+
   try {
-    const response = await sns
-      .publish({
+    const response = await snsClient.send(
+      new PublishCommand({
         TopicArn: topicArn,
         Message: data.message,
         Subject: "Problem with exam system!!",
       })
-      .promise();
-    console.log("Message sent:", response);
+    );
     return {
       statusCode: 200,
-      body: "Message sent successfully!",
+      body: JSON.stringify({ message: "Message sent successfully!" }),
     };
   } catch (error) {
-    console.error("Error sending message:", error);
+    console.error("SNS Publish Error:", error);
     return {
       statusCode: 500,
-      body: "Failed to send message!",
+      body: JSON.stringify({ message: "Failed to send message!" }),
     };
   }
 }

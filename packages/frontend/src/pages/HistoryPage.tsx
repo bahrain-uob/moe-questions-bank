@@ -1,44 +1,59 @@
-import React, { useState, useEffect } from "react"; //useEffect: Do something when something changes
+import React, { useState } from "react";
+import invokeApig from "../lib/callAPI.ts";
+import { useNavigate } from "react-router-dom";
 
 const HistoryPage: React.FC = () => {
-  const [history, setHistory] = useState<any[]>([]);
-  const [filteredHistory, setFilteredHistory] = useState<any[]>([]);
-  const [gradeFilter, setGradeFilter] = useState("");
-  const [subjectFilter, setSubjectFilter] = useState("");
+  const [gettingExams, setGettingExams] = useState(false);
+  const [gettingExamsError, setGetExamsError] = useState("");
+  const [exams, setExams] = useState([]);
+  const [filterValue, setFilterValue] = useState("pending");
+  const navigate = useNavigate();
 
-  // Mocked data fetch
-  //This part runs once when the page is loaded
-  useEffect(() => {
-    const fetchHistory = async () => {
-      try {
-        // Replace with  actual API call to fetch exam history
-        const mockExams = [
-          {
-            id: 1,
-            grade: "Secondary Grade 1",
-            subject: "ENG 102",
-            file: "Grade1_ENG-102.pdf",
-          },
-        ];
-        setHistory(mockExams);
-        setFilteredHistory(mockExams);
-      } catch (error) {
-        console.error("Error fetching history:", error);
+  async function getExams() {
+    setExams([]);
+    setGettingExams(true);
+    console.log(filterValue);
+    try {
+      //@ts-ignore
+      const response = await invokeApig({
+        path: `/getExamHistory`, // Adjust path as needed
+        method: "GET",
+        queryParams: {
+          state: filterValue,
+        },
+      });
+
+      if (!response || Object.keys(response).length === 0) {
+        console.log(response);
+        setGetExamsError("No exams found!");
+        return;
       }
+
+      setGetExamsError("");
+
+      // Store the retrieved exams in the state
+      setExams(response);
+
+      console.log("Initial Data Loaded:", response);
+    } catch (err: any) {
+      console.error("Error fetching initial data:", err);
+    } finally {
+      setGettingExams(false); // Mark loading as complete
+    }
+  }
+
+  // Function to determine the color based on the examState
+  function getColorForState(state:any) {
+    const stateColors = {
+      pending: "rgba(255, 140, 0, 0.9)", // Orange
+      approved: "rgba(34, 139, 34, 0.9)", // Green
+      disapproved: "rgba(255, 0, 0, 0.9)", // Red
+      default: "rgba(105, 105, 105, 0.9)", // Gray for unknown states
     };
 
-    fetchHistory();
-  }, []); //[dependency]:This is a list of things React should "watch."If any of the dependencies change, React will re-run the function.
-
-  // Apply filters
-  const handleFilter = () => {
-    const filtered = history.filter(
-      (exam) =>
-        (gradeFilter ? exam.grade === gradeFilter : true) &&
-        (subjectFilter ? exam.subject === subjectFilter : true)
-    );
-    setFilteredHistory(filtered);
-  };
+    //@ts-ignore
+    return stateColors[state.toLowerCase()] || stateColors.default;
+  }
 
   return (
     <div
@@ -88,65 +103,32 @@ const HistoryPage: React.FC = () => {
               color: "#555",
             }}
           >
-            Grade:
+            State:
           </label>
           <select
-            value={gradeFilter}
-            onChange={(e) => setGradeFilter(e.target.value)}
+            value={filterValue}
+            onChange={(e) => setFilterValue(e.target.value)}
             style={{
               display: "block",
               width: "200px",
-              padding: "0.5rem",
+              padding: "0.6rem",
               borderRadius: "4px",
               border: "1px solid #ccc",
               marginTop: "0.5rem",
               fontSize: "14px",
             }}
           >
-            <option value="">All Grades</option>
-            <option value="Secondary Grade 1">Secondary Grade 1</option>
-            <option value="Secondary Grade 2">Secondary Grade 2</option>
-            <option value="Secondary Grade 2">Secondary Grade 3</option>
-          </select>
-        </div>
-        <div>
-          <label
-            style={{
-              fontSize: "14px",
-              fontWeight: "bold",
-              color: "#555",
-            }}
-          >
-            Subject:
-          </label>
-          <select
-            value={subjectFilter}
-            onChange={(e) => setSubjectFilter(e.target.value)}
-            style={{
-              display: "block",
-              width: "200px",
-              padding: "0.5rem",
-              borderRadius: "4px",
-              border: "1px solid #ccc",
-              marginTop: "0.5rem",
-              fontSize: "14px",
-            }}
-          >
-            <option value="">All Subjects</option>
-            <option value="ENG 101">ENG 101</option>
-            <option value="ENG 102">ENG 102</option>
-            <option value="ENG 102">ENG 102</option>
-            <option value="ENG 201">ENG 201</option>
-            <option value="ENG 301">ENG 301</option>
-            <option value="ENG 218">ENG 218</option>
+            <option value="pending">Pending</option>
+            <option value="approved">Approved</option>
+            <option value="disapproved">Disapproved</option>
           </select>
         </div>
         <button
-          onClick={handleFilter}
+          onClick={getExams}
           style={{
             backgroundColor: "#4b4b4b",
             color: "white",
-            padding: "0.5rem 1rem",
+            padding: "0.4rem 1rem",
             borderRadius: "4px",
             fontSize: "16px",
             border: "none",
@@ -154,7 +136,30 @@ const HistoryPage: React.FC = () => {
             marginTop: "1.5rem",
           }}
         >
-          Apply Filters
+          {gettingExams ? (
+            <span
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: "0.5rem",
+              }}
+            >
+              <span
+                style={{
+                  width: "1rem",
+                  height: "1rem",
+                  border: "2px solid #fff",
+                  borderRadius: "50%",
+                  borderTop: "2px solid transparent",
+                  animation: "spin 1s linear infinite",
+                }}
+              ></span>
+              Fetching..
+            </span>
+          ) : (
+            "Apply Filter"
+          )}
         </button>
       </div>
 
@@ -178,60 +183,196 @@ const HistoryPage: React.FC = () => {
             marginBottom: "1rem",
           }}
         >
-          Exam Results
+          Exam Results:
         </h3>
-        <ul
-          style={{
-            listStyleType: "none",
-            padding: 0,
-          }}
-        >
-          {filteredHistory.length > 0 ? (
-            filteredHistory.map((exam) => (
-              <li
-                key={exam.id}
+
+        {gettingExams && <div>Loading exams...</div>}
+
+        {!gettingExams && gettingExamsError && <div>{gettingExamsError}</div>}
+
+        {!gettingExams && !gettingExamsError && exams.length > 0 && (
+          <div>
+            {exams.map((exam) => (
+              <div
+                //@ts-ignore
+                key={exam.examID}
+                //@ts-ignore
+                onClick={() => navigate(`/dashboard/viewExam/${exam.examID}`)} // Redirect to the exam form page
                 style={{
+                  marginBottom: "1rem",
+                  padding: "1rem",
+                  backgroundColor: "#fff",
+                  borderRadius: "8px",
                   display: "flex",
                   justifyContent: "space-between",
-                  alignItems: "center",
-                  padding: "1rem",
-                  borderBottom: "1px solid #ccc",
+                  alignItems: "flex-start",
+                  cursor: "pointer",
+                  transition: "background-color 0.3s ease",
+                  border: "1px solid rgba(0, 0, 0, 0.05)",
+                  boxShadow: "0 1px 3px rgba(0, 0, 0, 0.1)",
                 }}
+                onMouseEnter={(e) =>
+                  (e.currentTarget.style.backgroundColor = "#f9f9f9")
+                }
+                onMouseLeave={(e) =>
+                  (e.currentTarget.style.backgroundColor = "#fff")
+                }
               >
-                <span style={{ color: "#333", fontSize: "16px" }}>
-                  {exam.grade} - {exam.subject}
-                </span>
-                <a
-                  href={`https://your-s3-bucket-url/${exam.file}`} // Replace with actual DynamoDB or s3??
-                  target="_blank" //This tells the browser to open the link in a new tab
-                  rel="noopener noreferrer" //security:Prevents the new tab from being able to access the page that opened it and Prevents the browser from sending information about the referring page
+                {/* Creator */}
+                <div style={{ flex: 1, marginRight: "1rem" }}>
+                  <p
+                    style={{
+                      margin: 0,
+                      fontSize: "12px",
+                      color: "#777",
+                    }}
+                  >
+                    Creator
+                  </p>
+                  <p
+                    style={{
+                      margin: 0,
+                      fontSize: "14px",
+                      color: "#333",
+                      fontWeight: "bold",
+                    }}
+                  >
+                    {/*@ts-ignore*/}
+                    {exam.createdBy}
+                  </p>
+                </div>
+
+                {/* Date */}
+                <div style={{ flex: 1, marginRight: "1rem" }}>
+                  <p
+                    style={{
+                      margin: 0,
+                      fontSize: "12px",
+                      color: "#777",
+                    }}
+                  >
+                    Date
+                  </p>
+                  <p
+                    style={{
+                      margin: 0,
+                      fontSize: "14px",
+                      color: "#333",
+                      fontWeight: "bold",
+                    }}
+                  >
+                    {/*@ts-ignore*/}
+                    {exam.creationDate}
+                  </p>
+                </div>
+
+                {/* Subject */}
+                <div style={{ flex: 1, marginRight: "1rem" }}>
+                  <p
+                    style={{
+                      margin: 0,
+                      fontSize: "12px",
+                      color: "#777",
+                    }}
+                  >
+                    Subject
+                  </p>
+                  <p
+                    style={{
+                      margin: 0,
+                      fontSize: "14px",
+                      color: "#333",
+                      fontWeight: "bold",
+                    }}
+                  >
+                    {/*@ts-ignore*/}
+                    {exam.examSubject}
+                  </p>
+                </div>
+
+                {/* Class */}
+                <div style={{ flex: 1, marginRight: "1rem" }}>
+                  <p
+                    style={{
+                      margin: 0,
+                      fontSize: "12px",
+                      color: "#777",
+                    }}
+                  >
+                    Class
+                  </p>
+                  <p
+                    style={{
+                      margin: 0,
+                      fontSize: "14px",
+                      color: "#333",
+                      fontWeight: "bold",
+                    }}
+                  >
+                    {/*@ts-ignore*/}
+                    {exam.examClass}
+                  </p>
+                </div>
+
+                {/* Semester */}
+                <div style={{ flex: 1 }}>
+                  <p
+                    style={{
+                      margin: 0,
+                      fontSize: "12px",
+                      color: "#777",
+                    }}
+                  >
+                    Semester
+                  </p>
+                  <p
+                    style={{
+                      margin: 0,
+                      fontSize: "14px",
+                      color: "#333",
+                      fontWeight: "bold",
+                    }}
+                  >
+                    {/*@ts-ignore*/}
+                    {exam.examSemester}
+                  </p>
+                </div>
+
+                {/* State */}
+                <div
                   style={{
-                    textDecoration: "none",
-                    backgroundColor: "#4b4b4b",
-                    color: "#fff",
-                    padding: "0.5rem 1rem",
-                    borderRadius: "4px",
-                    fontSize: "14px",
-                    fontWeight: "bold",
+                    flex: 1,
+                    textAlign: "right",
                   }}
                 >
-                  Download PDF
-                </a>
-              </li>
-            ))
-          ) : (
-            <p
-              style={{
-                textAlign: "center",
-                fontSize: "16px",
-                color: "#777",
-              }}
-            >
-              No exams found. Adjust your filters or try again later.
-            </p>
-          )}
-        </ul>
+                  <p
+                    style={{
+                      marginTop: "14px",
+                      textAlign: "center",
+                      margin: 0,
+                      fontSize: "14px",
+                      fontWeight: "bold",
+                      //@ts-ignore
+                      color: getColorForState(exam.examState), // Dynamic color based on exam state
+                    }}
+                  >
+                    {/*@ts-ignore*/}
+                    {exam.examState.toUpperCase()}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
+      <style>
+        {`
+          @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+          }
+        `}
+      </style>
     </div>
   );
 };

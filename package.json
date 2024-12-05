@@ -27,10 +27,13 @@
     "@aws-sdk/client-bedrock-agent-runtime": "^3.703.0",
     "@aws-sdk/client-bedrock-runtime": "^3.699.0",
     "@aws-sdk/client-sagemaker-runtime": "^3.693.0",
+    "@aws-sdk/client-sns": "^3.699.0",
+    "@aws-sdk/lib-dynamodb": "^3.699.0",
     "@langchain/groq": "^0.1.2",
     "aws-sdk": "^2.1692.0",
     "crypto-js": "^4.2.0",
     "react-bootstrap": "^2.10.5",
-    "react-router-dom": "^6.28.0"
+    "react-router-dom": "^6.28.0",
+    "uuid": "^11.0.3"
   }
 }

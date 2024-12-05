@@ -30,10 +30,10 @@ export async function getExamsCount(event: APIGatewayProxyEvent) {
     // Query the DynamoDB table and get the count
     const result = await dynamodb.query(params).promise();
 
-    console.log("Count of exams:", result.Count);
+    console.log("Count of exams:", result);
 
     // Return the count as the response body
-    body = JSON.stringify({ count: result.Items.length });
+    body = JSON.stringify({ count: result.Count });
 
   } catch (error) {
     console.error("Error querying exams:", error);

@@ -30,14 +30,14 @@ const Dashboard: React.FC<UserDashboardProps> = () => {
     async function fetchExamCount() {
       try {
         const response = await invokeApig({
+          // @ts-ignore
           path: `/getExamCount`, // Adjust path as needed
           method: "GET",
           queryParams: {
             state: filterValue,
           },
-          body: {}
       });
-        setExamCount(response ? Object.keys(response).length : 0); // Set the exam count
+        setExamCount(response ? response.count : 0); // Set the exam count
       } catch (err) {
         console.error("Error fetching exam count:", err);
         setExamCount(0); // Set count to 0 if there's an error

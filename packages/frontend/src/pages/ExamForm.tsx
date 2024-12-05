@@ -126,7 +126,6 @@ const ExamForm: React.FC = () => {
       });
 
       console.log("API Response:", response);
-      console.log(response.examContent);
       setResponseResult(response.examContent);
       setFeedback("");
       

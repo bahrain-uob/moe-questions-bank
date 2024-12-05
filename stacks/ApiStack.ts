@@ -38,6 +38,18 @@ export function ApiStack({ stack }: StackContext) {
         },
       },
 
+      "GET /getExamCount": {
+        function: {
+          handler: "packages/functions/src/getExamsCount.getExamsCount", 
+          runtime: "nodejs20.x",
+          timeout: "180 seconds",
+          permissions: ["dynamodb", exams_table],  // Ensure necessary permissions
+          environment: {
+            TABLE_NAME: exams_table.tableName,  // Pass the table name to the Lambda
+          },
+        },
+      },
+
       "GET /getBuildingExams": {
         function: {
           handler: "packages/functions/src/getBuildingExams.getExams",

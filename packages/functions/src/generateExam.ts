@@ -94,8 +94,7 @@ export async function generate(event: APIGatewayProxyEvent) {
     const response = await client.send(command);
 
     // Extract and print the response text.
-    const responseText = response.output.text;
-
+    const responseText = response.output;
 
     await dynamo.send(
       new UpdateCommand({

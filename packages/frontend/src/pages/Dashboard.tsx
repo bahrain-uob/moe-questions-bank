@@ -6,6 +6,7 @@ import { signOut } from "aws-amplify/auth";
 import { useNavigate } from "react-router-dom";
 import { useAppContext } from "../lib/contextLib";
 import { NavLink, Outlet } from "react-router-dom";
+import invokeApig from "../lib/callAPI.ts";
 
 interface UserDashboardProps {}
 
@@ -13,11 +14,13 @@ const Dashboard: React.FC<UserDashboardProps> = () => {
   const navigate = useNavigate();
   const { userHasAuthenticated } = useAppContext();
   const { userRole } = useAppContext();
-  const [activePage, setActivePage] = useState<string>(window.location.pathname);
+  const [activePage, setActivePage] = useState<string>(
+    window.location.pathname
+  );
 
   setTimeout(() => {
-    setActivePage(window.location.pathname)
-  },500)
+    setActivePage(window.location.pathname);
+  }, 500);
 
   async function handleSignOut() {
     await signOut();
@@ -26,6 +29,29 @@ const Dashboard: React.FC<UserDashboardProps> = () => {
     userHasAuthenticated(false);
     navigate("/login");
   }
+
+  async function getExamsCount() {
+    try {
+      //@ts-ignore
+      const response = await invokeApig({
+        path: `/getExamCount`,
+        method: "GET",
+      });
+      return response ? response.length : 0; // Return the count based on the length of the exam list
+    } catch (err) {
+      console.error("Error fetching exam count:", err);
+      return 0; // Return 0 if there's an error
+    }
+  }
+
+ let ExamCount = null;
+  getExamsCount()
+    .then((count) => {
+      ExamCount = count;
+    })
+    .catch((err) => {
+      console.error("Error fetching exam count:", err);
+    });
 
   return (
     <div
@@ -316,7 +342,9 @@ const Dashboard: React.FC<UserDashboardProps> = () => {
                       justifyContent: "center",
                       alignItems: "center",
                     }}
-                  >{ }</span>
+                  >
+                    {ExamCount}
+                  </span>
                 </div>
               </NavLink>
             )}

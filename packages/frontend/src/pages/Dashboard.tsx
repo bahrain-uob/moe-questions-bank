@@ -6,11 +6,14 @@ import { signOut } from "aws-amplify/auth";
 import { useNavigate } from "react-router-dom";
 import { useAppContext } from "../lib/contextLib";
 import { NavLink, Outlet } from "react-router-dom";
+const [filterValue] = useState("pending");
 import invokeApig from "../lib/callAPI.ts";
 
 interface UserDashboardProps {}
 
 const Dashboard: React.FC<UserDashboardProps> = () => {
+  
+  const [examCount, setExamCount] = useState(0); // State to store the exam count
   const navigate = useNavigate();
   const { userHasAuthenticated } = useAppContext();
   const { userRole } = useAppContext();
@@ -22,6 +25,29 @@ const Dashboard: React.FC<UserDashboardProps> = () => {
     setActivePage(window.location.pathname);
   }, 500);
 
+
+    
+    async function fetchExamCount() {
+      try {
+        const response = await invokeApig({
+          path: `/getExamCount`, // Adjust path as needed
+          method: "GET",
+          queryParams: {
+            state: filterValue,
+          },
+          body: {}
+      });
+        setExamCount(response ? Object.keys(response).length : 0); // Set the exam count
+      } catch (err) {
+        console.error("Error fetching exam count:", err);
+        setExamCount(0); // Set count to 0 if there's an error
+      }
+    }
+
+    setTimeout(() => {
+      fetchExamCount();
+    }, 1500);
+
   async function handleSignOut() {
     await signOut();
     localStorage.removeItem("isAuthenticated");
@@ -30,31 +56,8 @@ const Dashboard: React.FC<UserDashboardProps> = () => {
     navigate("/login");
   }
 
-  async function getExamsCount() {
-    try {
-      //@ts-ignore
-      const response = await invokeApig({
-        path: `/getExamCount`,
-        method: "GET",
-      });
-      return response ? response.length : 0; // Return the count based on the length of the exam list
-    } catch (err) {
-      console.error("Error fetching exam count:", err);
-      return 0; // Return 0 if there's an error
-    }
-  }
 
-  let ExamCount = null;
-  setTimeout(() => {
-    getExamsCount()
-      .then((count) => {
-        ExamCount = count;
-      })
-      .catch((err) => {
-        console.error("Error fetching exam count:", err);
-      });
-  }, 2000);
-
+ 
   return (
     <div
       style={{
@@ -345,7 +348,7 @@ const Dashboard: React.FC<UserDashboardProps> = () => {
                       alignItems: "center",
                     }}
                   >
-                    {ExamCount}
+                    {examCount}
                   </span>
                 </div>
               </NavLink>

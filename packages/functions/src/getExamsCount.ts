@@ -18,12 +18,14 @@ export async function getExamsCount(event: APIGatewayProxyEvent) {
     const examState = queryParams.state;
     console.log("Exam State:", examState);
 
-    // Define DynamoDB query parameters
     const params = {
-      TableName: tableName,
-      IndexName: "examStateIndex", 
-      Select: "COUNT", // Return only the count of matching items
-    };
+      TableName: tableName, // Table name
+      IndexName: "examStateIndex", // Specify the index name
+      KeyConditionExpression: "examState = :state", // Query condition
+      ExpressionAttributeValues: {
+        ":state": "pending", // The value you want to match
+      },
+    };  
 
     // Query the DynamoDB table and get the count
     const result = await dynamodb.query(params).promise();

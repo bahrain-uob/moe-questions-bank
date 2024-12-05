@@ -2,7 +2,7 @@ import { APIGatewayProxyEvent } from "aws-lambda";
 const AWS = require("aws-sdk");
 const dynamodb = new AWS.DynamoDB.DocumentClient();
 
-export async function getExams(event: APIGatewayProxyEvent) {
+export async function getExamsCount(event: APIGatewayProxyEvent) {
   const tableName = process.env.TABLE_NAME;
   console.log("Table Name: " + process.env.TABLE_NAME);
 
@@ -31,7 +31,7 @@ export async function getExams(event: APIGatewayProxyEvent) {
     console.log("Count of exams:", result.Count);
 
     // Return the count as the response body
-    body = JSON.stringify({ count: result.Count });
+    body = JSON.stringify({ count: result.Items.length });
 
   } catch (error) {
     console.error("Error querying exams:", error);

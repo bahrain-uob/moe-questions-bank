@@ -44,14 +44,16 @@ const Dashboard: React.FC<UserDashboardProps> = () => {
     }
   }
 
- let ExamCount = null;
-  getExamsCount()
-    .then((count) => {
-      ExamCount = count;
-    })
-    .catch((err) => {
-      console.error("Error fetching exam count:", err);
-    });
+  let ExamCount = null;
+  setTimeout(() => {
+    getExamsCount()
+      .then((count) => {
+        ExamCount = count;
+      })
+      .catch((err) => {
+        console.error("Error fetching exam count:", err);
+      });
+  }, 2000);
 
   return (
     <div

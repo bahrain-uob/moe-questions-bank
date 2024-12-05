@@ -126,14 +126,10 @@ const ExamForm: React.FC = () => {
       });
 
       console.log("API Response:", response);
-<<<<<<< HEAD
-      alert("Successfully generated exam.");
-      console.log(response.output.text);
-      setResponseResult(response.output.text);
-=======
-      setResponseResult(response.newExamContent);
+      console.log(response.examContent);
+      setResponseResult(response.examContent);
       setFeedback("");
->>>>>>> origin/main
+      
     } catch (error) {
       console.error("Error generating exam:", error);
       alert("Failed to generate exam. Please try again.");
@@ -196,95 +192,7 @@ const ExamForm: React.FC = () => {
               color: "#fff",
               border: "none",
               borderRadius: "4px",
-<<<<<<< HEAD
-              border: "1px solid #ccc",
-              fontSize: "14px",
-            }}
-          >
-            <option value="">Select Grade</option>
-            <option value="Grade 10">Secondary Grade 1</option>
-            <option value="Grade 11">Secondary Grade 2</option>
-            <option value="Grade 12">Secondary Grade 3</option>
-          </select>
-        </label>
-
-        <label
-          style={{
-            fontSize: "16px",
-            color: "#4b4b4b",
-            marginBottom: "1rem",
-            display: "block",
-            fontWeight: "bold",
-          }}
-        >
-          Subject:
-          <select
-            value={subject}
-            onChange={(e) => setSubject(e.target.value)}
-            style={{
-              display: "block",
-              width: "100%",
-              marginTop: "0.5rem",
-              padding: "0.75rem",
-              borderRadius: "4px",
-              border: "1px solid #ccc",
-              fontSize: "14px",
-            }}
-          >
-            <option value="">Select Subject</option>
-            <option value="English">ENG 101</option>
-            <option value="Science">Science</option>
-            <option value="Eng102">ENG 102</option>
-            <option value="English">ENG 201</option>
-            <option value="English">ENG 301</option>
-            <option value="English">ENG 218</option>
-          </select>
-        </label>
-
-        <label
-          style={{
-            fontSize: "16px",
-            color: "#4b4b4b",
-            marginBottom: "1rem",
-            display: "block",
-            fontWeight: "bold",
-          }}
-        >
-          Duration:
-          <input
-            type="number"
-            min={1}
-            max={3}
-            value={duration}
-            required
-            onChange={(e) => setDuration(e.target.value)}
-            style={{
-              display: "block",
-              width: "100%",
-              marginTop: "0.5rem",
-              padding: "0.75rem",
-              borderRadius: "4px",
-              border: "1px solid #ccc",
-              fontSize: "14px",
-            }}
-          ></input>
-        </label>
-
-        <fieldset
-          style={{
-            marginTop: "1.5rem",
-            padding: "1rem",
-            border: "1px solid #ccc",
-            borderRadius: "4px",
-          }}
-        >
-          <legend
-            style={{
-              fontSize: "16px",
-              color: "#4b4b4b",
-=======
               fontSize: "14px", // Smaller font size
->>>>>>> origin/main
               fontWeight: "bold",
               cursor: "pointer",
               transition: "background-color 0.3s ease, transform 0.3s ease",

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import MOELogo from "../assets/moe_LOGO.png"; // Ministry of Education logo
 import HomeIcon from "../assets/home icon (1).png"; // Home icon
 import BackgroundImage from "../assets/BG.jpg"; // Background image
@@ -21,22 +21,22 @@ const Dashboard: React.FC<UserDashboardProps> = () => {
     window.location.pathname
   );
 
-  setTimeout(() => {
+  useEffect(() => {
     setActivePage(window.location.pathname);
-  }, 500);
+  }, []);
 
-
-    
+  // Fetch exam count only once when the component mounts
+  useEffect(() => {
     async function fetchExamCount() {
       try {
+        // @ts-ignore
         const response = await invokeApig({
-          // @ts-ignore
           path: `/getExamCount`, // Adjust path as needed
           method: "GET",
           queryParams: {
             state: filterValue,
           },
-      });
+        });
         setExamCount(response ? response.count : 0); // Set the exam count
       } catch (err) {
         console.error("Error fetching exam count:", err);
@@ -44,9 +44,9 @@ const Dashboard: React.FC<UserDashboardProps> = () => {
       }
     }
 
-    setTimeout(() => {
-      fetchExamCount();
-    }, 1500);
+    fetchExamCount();
+  }, [filterValue]); // Dependency array ensures fetchExamCount is only called when `filterValue` changes
+
 
   async function handleSignOut() {
     await signOut();

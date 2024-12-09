@@ -85,7 +85,7 @@ const subjectToPromptPreset: Record<string, PromptPreset> = {
     knowledgeBaseId: "EU3Z7J6SG6", // TODO: change this to the correct knowledgeBaseId
     retrievalQuery: "ARAB101 questions",
     language: Language.ar,
-    expressPrompt: ``,
+    expressPrompt: ``, // TODO: change this to the correct prompt
   },
 };
 
@@ -117,7 +117,7 @@ export async function createExam(event: APIGatewayProxyEvent) {
   // get the subject preset based on the subject
   const promptPreset = subjectToPromptPreset[data.subject];
   if (!promptPreset) {
-    throw new Error(`Subject ${data.subject} not found in the subjectToModelIdMap`);
+    throw new Error(`Subject ${data.subject} not found in the subjectToPromptPreset dictionary`);
   }
   
   let retrieveCommand = new RetrieveCommand({
@@ -136,16 +136,17 @@ export async function createExam(event: APIGatewayProxyEvent) {
     const relevant_info = (await bedrockAgentClient.send(retrieveCommand)).retrievalResults?.map(e => e.content?.text).join("\n").toString();
     prompt = subjectToPromptPreset[data.subject].expressPrompt.replace('$relevant_info$', relevant_info? relevant_info : "");
   } else {
-    prompt = `
-        Act as a school exam generator and create an exam for grade ${data.class} ${data.subject} students.
-        The exam should have only the following :
-      `;
+    prompt = (promptPreset.language === Language.ar) 
+    ? `تصرف كمولد لامتحانات المدرسة وأنشئ امتحانًا لطلاب الصف ${data.class} ${data.subject}. يجب ألا يتجاوز مدة الامتحان الإجمالية ${data.duration} ساعة مع إجمالي ${data.total_mark} علامة.
+    ` : `Act as a school exam generator and create an exam for grade ${data.class} ${data.subject} students. The total duration of the exam should not exceed ${data.duration} hours with total ${data.total_mark} marks.
+    `;
     // Dynamically build the prompt for each question type
     Object.entries(data.question_types).forEach(([type, count]) => {
-      //@ts-ignore
-      if (count > 0) {
-        //@ts-ignore
-        prompt += `include ${count} ${type} question${count > 1 ? "s" : ""}, `;
+      const questionCount = count as number;
+      if (questionCount > 0) {
+          prompt += (promptPreset.language === Language.ar) ? `تضمين ${questionCount} سؤال${questionCount > 1 ? "ات" : ""} ${type}, `
+          : (promptPreset.language === Language.en) ? `include ${questionCount} ${type} question${questionCount > 1 ? "s" : ""}, `
+          : "";
       }
     });
     retrieveCommand.input.retrievalQuery = {
@@ -153,7 +154,12 @@ export async function createExam(event: APIGatewayProxyEvent) {
     };
     // console.log(retrieveCommand);
     const relevant_info = (await bedrockAgentClient.send(retrieveCommand)).retrievalResults?.map(e => e.content?.text).join("\n").toString();
-    prompt += `
+    prompt += (Language.ar === promptPreset.language) 
+    ? `
+        يجب ألا يتجاوز مدة الامتحان الإجمالية ${data.duration} ساعة مع إجمالي ${data.total_mark} علامة.
+        انظر إلى هذه المعلومات ذات الصلة من الامتحانات السابقة: ${relevant_info}
+    `
+    : `
         The total duration of the exam should not exceed ${data.duration} hours with total ${data.total_mark} marks.
         Take to consideration this relevant information from past exams: ${relevant_info}
       `;

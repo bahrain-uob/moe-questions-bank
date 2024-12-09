@@ -321,6 +321,7 @@ export function InitialForm() {
                 }}
               >
                 <option value="ENG102">ENG102</option>
+                <option value="ARAB101">ARAB101</option>
               </select>
             </label>
           </div>

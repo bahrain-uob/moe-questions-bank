@@ -40,6 +40,7 @@
     "@langchain/groq": "^0.1.2",
     "aws-sdk": "^2.1692.0",
     "crypto-js": "^4.2.0",
+    "esbuild": "^0.24.0",
     "react-bootstrap": "^2.10.5",
     "react-router-dom": "^6.28.0",
     "uuid": "^11.0.3"

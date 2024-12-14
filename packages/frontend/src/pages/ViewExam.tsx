@@ -3,7 +3,7 @@ import invokeApig from "../lib/callAPI.ts";
 import { useParams } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import { useAppContext } from "../lib/contextLib.ts";
-import { getCurrentUserEmail } from "../lib/getToken.ts";
+//import { getCurrentUserEmail } from "../lib/getToken.ts";
 
 
 
@@ -54,9 +54,8 @@ const ViewExam: React.FC = () => {
   const [examContent, setExamContent] = useState<ExamContent | null>(null);
   const [_editMode, _setEditMode] = useState(false); // Toggle edit mode
   const [_editedContent, _setEditedContent] = useState<Record<string, any>>({});
-  const [isEditing, setIsEditing] = useState(false);
-  const [_loading, setLoading] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isEditing, _setIsEditing] = useState(false);
+  const [_loading, _setLoading] = useState(false);
   const [feedback, setFeedback] = useState<Record<string, string>>({}); // Store feedback
   const { id } = useParams<{ id: string }>();
   const { userRole } = useAppContext();
@@ -214,85 +213,6 @@ const ViewExam: React.FC = () => {
     };
   }, [id]);
 
-
-
-  const handleFeedbackSubmission = async () => {
-    setIsLoading(true);
-    // Prepare the feedback payload, including only non-empty feedback
-    const feedbackPayload = Object.entries(feedback)
-      .filter(([_, feedbackText]) => feedbackText.trim()) // Only include sections with feedback
-      .map(([section, feedbackText]) => ({
-        section,
-        feedback: feedbackText.trim(),
-      }));
-  
-    if (feedbackPayload.length === 0) {
-      alert("No feedback to submit. Please provide feedback in at least one section.");
-      return;
-    }
-  
-    const requestBody = {
-      examID: id!, // Exam ID
-      feedback: feedbackPayload, // Include all provided feedback
-      contributors: await getCurrentUserEmail(), // Current user as contributor
-    };
-  
-    console.log("Submitting Feedback Request:", requestBody);
-  
-    try {
-      setLoading(true); // Start loading animation
-  
-      const response = await invokeApig({
-        path: "/createNewExam", // Update API endpoint
-        method: "POST",
-        body: requestBody,
-      });
-  
-      console.log("API Response:", response);
-  
-      // Check if the backend returns the updated content
-      if (response.updatedExamContent) {
-        setExamContent(response.updatedExamContent); // Update the entire exam content
-      }
-  
-      if (response.totalMarks) {
-        setMark(response.totalMarks); // Update the total marks
-      }
-  
-      // Provide feedback to the user
-      if (response.updatedExamContent || response.totalMarks) {
-        alert("Feedback submitted successfully, and exam content updated!");
-      } else {
-        alert("Feedback submitted successfully, but no updates were received.");
-      }
-  
-      // Clear the feedback fields after submission
-      setFeedback({});
-    } catch (error) {
-      console.error("Error submitting feedback:", error);
-      setErrorMsg("Failed to submit feedback. Please try again later.");
-    } finally {
-      setLoading(false); // Stop loading animation
-    }
-  };
-
-  // const handleFeedbackChange = (section: string, value: string) => {
-  //   // Optional: Add input validation or transformation
-  //   const sanitizedValue = value.trim(); // Example: Trim whitespace
-  
-  //   setFeedback((prev) => ({
-  //     ...prev,
-  //     [section]: sanitizedValue, // Update feedback for the specified section
-  //   }));
-  
-  //   // Optional: Debugging log (can be removed in production)
-  //   console.log(`Feedback updated for section "${section}":`, sanitizedValue);
-  // };
-  
-
-  
-
-
   const changeExamStateToBuild = async () => {
     setLoadingChangeState(true);
     const payload = {
@@ -327,7 +247,6 @@ const ViewExam: React.FC = () => {
     }
     const payload = {
       examID: id,
-      examContent: _responseResult,
       approverMsg: approverMsg,
     };
 
@@ -360,7 +279,6 @@ const ViewExam: React.FC = () => {
     }
     const payload = {
       examID: id,
-      examContent: _responseResult,
       approverMsg: approverMsg,
     };
 
@@ -383,6 +301,57 @@ const ViewExam: React.FC = () => {
   };
 
 
+
+
+  // const renderExamParts = (part: any, partKey: string) => {
+  //   //const partFeedback = feedback[partKey] || ""; // Feedback for this part
+  
+  //   return (
+  //     <div key={partKey} style={{ marginBottom: "30px" }}>
+  //       <h2>
+  //         Part {part.part}: {part.title}
+  //       </h2>
+  //       <p>Total Marks: {part.total_marks}</p>
+  
+  //       {part.subsections?.map((subsection: any, subKey: number) => (
+  //         <div key={`${partKey}-${subKey}`} style={{ marginBottom: "15px" }}>
+  //           <h3>
+  //             Subsection {subsection.subsection}: {subsection.title}
+  //           </h3>
+  //           <p>Marks: {subsection.marks}</p>
+  
+  //           {/* Render content */}
+  //           {subsection.content && (
+  //             <div>
+  //               {subsection.content.passage && (
+  //                 <p>
+  //                   <strong>Passage:</strong> {subsection.content.passage}
+  //                 </p>
+  //               )}
+  //               {subsection.content.dialogue && (
+  //                 <p>
+  //                   <strong>Dialogue:</strong> {subsection.content.dialogue}
+  //                 </p>
+  //               )}
+  //               {subsection.content.questions && (
+  //                 <ul>
+  //                   {subsection.content.questions.map(
+  //                     (question: any, qIndex: number) => (
+  //                       <li key={qIndex}>
+  //                         {question.type}: {question.question}
+  //                       </li>
+  //                     )
+  //                   )}
+  //                 </ul>
+  //               )}
+  //             </div>
+  //           )}
+  //         </div>
+  //       ))}
+  
+  //     </div>
+  //   );
+  // };
 
   // Show loading state
   if (loadingPage) {
@@ -1041,7 +1010,7 @@ const ViewExam: React.FC = () => {
       return null;
     })
   ) : (
-    <p>No writing section available.</p>
+    <p></p>
   )}
 
 
@@ -1158,74 +1127,6 @@ const ViewExam: React.FC = () => {
                     "Approve Exam"
                   )}
                 </button>
-
-
-                <button
-          onClick={() => setIsEditing(!isEditing)}
-          style={{
-            backgroundColor: isEditing ? "#FF5722" : "#007BFF",
-            color: "#fff",
-            border: "none",
-            padding: "10px 20px",
-            borderRadius: "4px",
-            cursor: "pointer",
-          }}
-        >
-          {isEditing ? "Cancel Edit" : "Edit"}
-        </button>
-
-
-
-        {/* Feedback Submission Button */}
-{isEditing && (
-  <button
-    onClick={handleFeedbackSubmission}
-    style={{
-      marginTop: "20px",
-      padding: "0.6rem 1rem",
-      color: "#fff",
-      border: "none",
-      borderRadius: "4px",
-      fontSize: "14px",
-      fontWeight: "bold",
-      cursor: isLoading ? "not-allowed" : "pointer", // Disable pointer when loading
-      transition: "background-color 0.3s ease, transform 0.3s ease",
-      boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
-      backgroundColor: isLoading ? "#6c757d" : "#007bff", // Grey when loading
-     
-    }}
-    disabled={isLoading} // Disable button when loading
-  >
-    {isLoading ? (
-      <>
-        <span
-          style={{
-            width: "1rem",
-            height: "1rem",
-            border: "2px solid #fff",
-            borderRadius: "50%",
-            borderTop: "2px solid transparent",
-            animation: "spin 1s linear infinite",
-          }}
-        ></span>
-        Submitting...
-      </>
-    ) : (
-      "Submit changes"
-    )}
-    <style>
-      {`
-        @keyframes spin {
-          0% { transform: rotate(0deg); }
-          100% { transform: rotate(360deg); }
-        }
-      `}
-    </style>
-  </button>
-)}
-
-
-
                 <button
                   onClick={disapproveExam}
                   disabled={loadingChangeState}

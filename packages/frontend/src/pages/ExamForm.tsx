@@ -55,9 +55,11 @@ const ExamForm: React.FC = () => {
 
 
   // State for feedback and UI
+  const [loadingStates, setLoadingStates] = useState<{ [key: string]: boolean }>({});
+
   const [_loading, setLoading] = useState(false);
   const [loadingPage, setLoadingPage] = useState(true);
-  const [isLoading, setIsLoading] = useState(false);
+  const [_isLoading, _setIsLoading] = useState(false);
   const [loadingApproval, setLoadingApproval] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
   const [feedback, setFeedback] = useState<{ [section: string]: string }>({});
@@ -232,8 +234,12 @@ const fetchExamContent = async () => {
     }
   };
 
-  const handleFeedbackSubmission = async () => {
-    setIsLoading(true);
+  const handleFeedbackSubmission = async (sectionIndex: number) => {
+    setLoadingStates((prev) => ({
+      ...prev,
+      [`section-${sectionIndex}`]: true, // Set loading state for the clicked section
+    }));
+  
     // Prepare the feedback payload, including only non-empty feedback
     const feedbackPayload = Object.entries(feedback)
       .filter(([_, feedbackText]) => feedbackText.trim()) // Only include sections with feedback
@@ -244,6 +250,10 @@ const fetchExamContent = async () => {
   
     if (feedbackPayload.length === 0) {
       alert("No feedback to submit. Please provide feedback in at least one section.");
+      setLoadingStates((prev) => ({
+        ...prev,
+        [`section-${sectionIndex}`]: false, // Reset loading state for the specific section
+      }));      
       return;
     }
   
@@ -256,8 +266,7 @@ const fetchExamContent = async () => {
     console.log("Submitting Feedback Request:", requestBody);
   
     try {
-      setLoading(true); // Start loading animation
-  
+     setLoading(true);// Start loading animation
       // const response = await invokeApig({
       //   path: "/createNewExam", // Update API endpoint
       //   method: "POST",
@@ -290,13 +299,21 @@ const fetchExamContent = async () => {
   
       // Provide feedback to the user
       if (data.updatedExamContent || data.totalMarks) {
-        alert("Feedback submitted successfully, and exam content updated!");
+        alert("Changes submitted successfully, and exam content updated!");
+         // Refresh the page after the success message
+        window.location.reload();
       } else {
-        alert("Feedback submitted successfully, but no updates were received.");
+        alert("Changes submitted successfully, but no updates were received.");
       }
   
       // Clear the feedback fields after submission
       setFeedback({});
+
+      setLoadingStates((prev) => ({
+        ...prev,
+        [`section-${sectionIndex}`]: false, // Reset loading state
+      }));
+      
     } catch (error) {
       console.error("Error submitting feedback:", error);
       setErrorMsg("Failed to submit feedback. Please try again later.");
@@ -489,6 +506,7 @@ const fetchExamContent = async () => {
             }}
           />
         )}
+
       </div>
     ))}
 
@@ -514,6 +532,8 @@ const fetchExamContent = async () => {
         }}
       />
     )}
+
+
   </div>
 ))}
 
@@ -580,6 +600,52 @@ const fetchExamContent = async () => {
           }}
         />
       )}
+
+      
+{/* Feedback Submission Button  */}
+{isEditing && (
+  <button
+    onClick={() => handleFeedbackSubmission(sectionIndex)} // Pass sectionIndex
+    style={{
+      marginTop: "10px",
+      backgroundColor: loadingStates[`section-${sectionIndex}`] ? "#6c757d" : "#28a745",
+      color: "#fff",
+      border: "none",
+      padding: "5px 10px",
+      borderRadius: "4px",
+      fontSize: "12px",
+      cursor: loadingStates[`section-${sectionIndex}`] ? "not-allowed" : "pointer",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      gap: "0.4rem",
+      width: "120px",
+      height: "30px",
+    }}
+    disabled={loadingStates[`section-${sectionIndex}`]} // Disable button when loading
+  >
+    {loadingStates[`section-${sectionIndex}`] ? (
+      <>
+        <span
+          style={{
+            width: "0.8rem",
+            height: "0.8rem",
+            border: "2px solid #fff",
+            borderRadius: "50%",
+            borderTop: "2px solid transparent",
+            animation: "spin 1s linear infinite",
+          }}
+        ></span>
+        <span style={{ fontSize: "10px" }}>Submitting...</span>
+      </>
+    ) : (
+      <span style={{ fontSize: "10px" }}>Submit Changes</span>
+    )}
+  </button>
+)}
+
+
+      
 
        {/* Render Subsections */}
 
@@ -738,6 +804,52 @@ const fetchExamContent = async () => {
               }}
             />
           )}
+
+             
+{/* Feedback Submission Button  */}
+{isEditing && (
+  <button
+    onClick={() => handleFeedbackSubmission(sectionIndex)} // Pass sectionIndex
+    style={{
+      marginTop: "10px",
+      backgroundColor: loadingStates[`section-${sectionIndex}`] ? "#6c757d" : "#28a745",
+      color: "#fff",
+      border: "none",
+      padding: "5px 10px",
+      borderRadius: "4px",
+      fontSize: "12px",
+      cursor: loadingStates[`section-${sectionIndex}`] ? "not-allowed" : "pointer",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      gap: "0.4rem",
+      width: "120px",
+      height: "30px",
+    }}
+    disabled={loadingStates[`section-${sectionIndex}`]} // Disable button when loading
+  >
+    {loadingStates[`section-${sectionIndex}`] ? (
+      <>
+        <span
+          style={{
+            width: "0.8rem",
+            height: "0.8rem",
+            border: "2px solid #fff",
+            borderRadius: "50%",
+            borderTop: "2px solid transparent",
+            animation: "spin 1s linear infinite",
+          }}
+        ></span>
+        <span style={{ fontSize: "10px" }}>Submitting...</span>
+      </>
+    ) : (
+      <span style={{ fontSize: "10px" }}>Submit Changes</span>
+    )}
+  </button>
+)}
+
+
+      
         </div>
       ))}
 
@@ -767,57 +879,10 @@ const fetchExamContent = async () => {
       return null;
     })
   ) : (
-    <p>No writing section available.</p>
+    <p></p>
   )}
 
 </div>
-
-{/* Feedback Submission Button */}
-{isEditing && (
-  <button
-    onClick={handleFeedbackSubmission}
-    style={{
-      marginTop: "20px",
-      backgroundColor: isLoading ? "#6c757d" : "#28a745", // Grey when loading
-      color: "#fff",
-      border: "none",
-      padding: "10px 20px",
-      borderRadius: "4px",
-      cursor: isLoading ? "not-allowed" : "pointer", // Disable pointer when loading
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-      gap: "0.5rem",
-    }}
-    disabled={_loading} // Disable button when loading
-  >
-    {_loading ? (
-      <>
-        <span
-          style={{
-            width: "1rem",
-            height: "1rem",
-            border: "2px solid #fff",
-            borderRadius: "50%",
-            borderTop: "2px solid transparent",
-            animation: "spin 1s linear infinite",
-          }}
-        ></span>
-        Submitting...
-      </>
-    ) : (
-      "Submit changes"
-    )}
-    <style>
-      {`
-        @keyframes spin {
-          0% { transform: rotate(0deg); }
-          100% { transform: rotate(360deg); }
-        }
-      `}
-    </style>
-  </button>
-)}
 
   
     

@@ -16,7 +16,7 @@
     "aws-cdk-lib": "^2.165.0",
     "constructs": "10.3.0",
     "sst": "^2.40.3",
-    "typescript": "^5.2.2"
+    "typescript": "^5.7.2"
   },
   "workspaces": [
     "packages/*"

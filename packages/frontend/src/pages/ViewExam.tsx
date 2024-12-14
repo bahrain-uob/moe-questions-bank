@@ -45,17 +45,17 @@ const ViewExam: React.FC = () => {
   const [contributers, setContributers] = useState("");
   const [examState, setExamState] = useState("");
   const [approverMsg, setApproverMsg] = useState("");
-  const [responseResult, setResponseResult] = useState<string>("");
+  const [_responseResult, _setResponseResult] = useState<string>("");
   const [loadingPage, setLoadingPage] = useState(true);
   const [errorMsg, setErrorMsg] = useState("");
   const [loadingChangeState, setLoadingChangeState] = useState(false);
   const [loadingApprove, setLoadingApprove] = useState(false);
   const [LoadingDisapprove, setLoadingDisapprove] = useState(false);
   const [examContent, setExamContent] = useState<ExamContent | null>(null);
-  const [editMode, setEditMode] = useState(false); // Toggle edit mode
-  const [editedContent, setEditedContent] = useState<Record<string, any>>({});
-  const [isEditing, setIsEditing] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const [_editMode, _setEditMode] = useState(false); // Toggle edit mode
+  const [_editedContent, _setEditedContent] = useState<Record<string, any>>({});
+  const [isEditing, _setIsEditing] = useState(false);
+  const [_loading, _setLoading] = useState(false);
   const [feedback, setFeedback] = useState<Record<string, string>>({}); // Store feedback
   const { id } = useParams<{ id: string }>();
   const { userRole } = useAppContext();
@@ -303,55 +303,55 @@ const ViewExam: React.FC = () => {
 
 
 
-  const renderExamParts = (part: any, partKey: string) => {
-    //const partFeedback = feedback[partKey] || ""; // Feedback for this part
+  // const renderExamParts = (part: any, partKey: string) => {
+  //   //const partFeedback = feedback[partKey] || ""; // Feedback for this part
   
-    return (
-      <div key={partKey} style={{ marginBottom: "30px" }}>
-        <h2>
-          Part {part.part}: {part.title}
-        </h2>
-        <p>Total Marks: {part.total_marks}</p>
+  //   return (
+  //     <div key={partKey} style={{ marginBottom: "30px" }}>
+  //       <h2>
+  //         Part {part.part}: {part.title}
+  //       </h2>
+  //       <p>Total Marks: {part.total_marks}</p>
   
-        {part.subsections?.map((subsection: any, subKey: number) => (
-          <div key={`${partKey}-${subKey}`} style={{ marginBottom: "15px" }}>
-            <h3>
-              Subsection {subsection.subsection}: {subsection.title}
-            </h3>
-            <p>Marks: {subsection.marks}</p>
+  //       {part.subsections?.map((subsection: any, subKey: number) => (
+  //         <div key={`${partKey}-${subKey}`} style={{ marginBottom: "15px" }}>
+  //           <h3>
+  //             Subsection {subsection.subsection}: {subsection.title}
+  //           </h3>
+  //           <p>Marks: {subsection.marks}</p>
   
-            {/* Render content */}
-            {subsection.content && (
-              <div>
-                {subsection.content.passage && (
-                  <p>
-                    <strong>Passage:</strong> {subsection.content.passage}
-                  </p>
-                )}
-                {subsection.content.dialogue && (
-                  <p>
-                    <strong>Dialogue:</strong> {subsection.content.dialogue}
-                  </p>
-                )}
-                {subsection.content.questions && (
-                  <ul>
-                    {subsection.content.questions.map(
-                      (question: any, qIndex: number) => (
-                        <li key={qIndex}>
-                          {question.type}: {question.question}
-                        </li>
-                      )
-                    )}
-                  </ul>
-                )}
-              </div>
-            )}
-          </div>
-        ))}
+  //           {/* Render content */}
+  //           {subsection.content && (
+  //             <div>
+  //               {subsection.content.passage && (
+  //                 <p>
+  //                   <strong>Passage:</strong> {subsection.content.passage}
+  //                 </p>
+  //               )}
+  //               {subsection.content.dialogue && (
+  //                 <p>
+  //                   <strong>Dialogue:</strong> {subsection.content.dialogue}
+  //                 </p>
+  //               )}
+  //               {subsection.content.questions && (
+  //                 <ul>
+  //                   {subsection.content.questions.map(
+  //                     (question: any, qIndex: number) => (
+  //                       <li key={qIndex}>
+  //                         {question.type}: {question.question}
+  //                       </li>
+  //                     )
+  //                   )}
+  //                 </ul>
+  //               )}
+  //             </div>
+  //           )}
+  //         </div>
+  //       ))}
   
-      </div>
-    );
-  };
+  //     </div>
+  //   );
+  // };
 
   // Show loading state
   if (loadingPage) {

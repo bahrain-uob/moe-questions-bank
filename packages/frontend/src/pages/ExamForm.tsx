@@ -59,7 +59,7 @@ const ExamForm: React.FC = () => {
 
   const [_loading, setLoading] = useState(false);
   const [loadingPage, setLoadingPage] = useState(true);
-  const [isLoading, setIsLoading] = useState(false);
+  const [_isLoading, _setIsLoading] = useState(false);
   const [loadingApproval, setLoadingApproval] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
   const [feedback, setFeedback] = useState<{ [section: string]: string }>({});

@@ -66,8 +66,8 @@ const indexBody = {
         index: true,         // Enables indexing for full-text search
       },
       metadataField: {
-        type: "object",      // Matches "metadataField"
-        enabled: true,       // Ensures the metadata is queryable
+        type: "text",      // Matches "metadataField"
+        index: false,       // Ensures the metadata is queryable
       },
     },
   },

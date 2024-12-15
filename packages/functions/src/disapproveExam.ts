@@ -31,7 +31,7 @@ export async function disapprove(event: APIGatewayProxyEvent) {
 
     let dynamoresponse = await dynamo.send(
       new GetCommand({
-        TableName: tableName,
+        TableName: examsTableName,
         Key: {
           examID: requestJSON.examID,
         },

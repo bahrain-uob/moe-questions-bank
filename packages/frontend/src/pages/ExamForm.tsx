@@ -110,13 +110,15 @@ const fetchInitialData = async () => {
       return;
     }
 
+    console.log(response)
+
     // Set metadata fields
     setGrade(response.examClass || "");
     setSubject(response.examSubject || "");
     setSemester(response.examSemester || "");
     setCreator(response.createdBy || "");
     setDate(response.creationDate || "");
-    setContributers(String(response.contributers || ""));
+    setContributers(String(response.contributors || ""));
     setDuration(response.examDuration || "");
     setMark(response.examMark || "");
     setExamState(response.examState || "");
@@ -262,7 +264,7 @@ const fetchExamContent = async () => {
     const requestBody = {
       examID: id!, // Exam ID
       feedback: feedbackPayload, // Include all provided feedback
-      contributors: await getCurrentUserEmail(), // Current user as contributor
+      contributors: contributers+ " " + await getCurrentUserEmail(), // Current user as contributor
     };
   
     console.log("Submitting Feedback Request:", requestBody);

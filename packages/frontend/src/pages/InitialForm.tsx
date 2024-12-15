@@ -102,7 +102,7 @@ export function InitialForm() {
         customize: customize,
         created_by: currentUserEmail,
         creation_date: createDate,
-        contributers: [currentUserEmail],
+        contributors: currentUserEmail,
       };
 
       console.log(payload);

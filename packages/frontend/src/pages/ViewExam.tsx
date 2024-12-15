@@ -114,7 +114,8 @@ const ViewExam: React.FC = () => {
     setContributers(String(response.contributers || ""));
     setDuration(response.examDuration || "");
     setMark(response.examMark || "");
-    setExamState(response.examState || "");
+      setExamState(response.examState || "");
+      setApproverMsg(response.approverMsg || "");
 
 
     

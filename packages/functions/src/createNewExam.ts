@@ -122,10 +122,11 @@ export async function createExam(event) {
         new UpdateCommand({
           TableName: tableName,
           Key: { examID: data.examID },
-          UpdateExpression: "SET examContent = :examContent, numOfRegenerations = numOfRegenerations + :incr",
+          UpdateExpression: "SET examContent = :examContent, numOfRegenerations = numOfRegenerations + :incr, contributors = :contributors",
           ExpressionAttributeValues: {
             ":examContent": responseText,
             ":incr": 1,
+            ":contributors": data.contributors
           },
         })
       );
@@ -200,7 +201,9 @@ export async function createExam(event) {
 
     console.log("Model done");
     //@ts-ignore
-    console.log("ResponseText size:", Buffer.byteLength(responseText, "utf-8"));
+      console.log("ResponseText size:", Buffer.byteLength(responseText, "utf-8"));
+      
+      console.log(data)
 
       const uuid = uuidv4();
       await dynamo.send(

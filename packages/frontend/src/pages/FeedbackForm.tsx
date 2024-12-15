@@ -1,28 +1,27 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import invokeApig from "../lib/callAPI.ts";
 
 const FeedbackForm: React.FC = () => {
-  //storing the input
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
 
+  const [recording, setRecording] = useState(false);
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const [audioChunks, setAudioChunks] = useState<BlobPart[]>([]);
+
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault(); //prevents the page from refreshing
+    e.preventDefault();
+    setLoading(true);
 
-    setLoading(true); // Start loading animation
-
-    //sending those data to lambda to take it to sagemaker...
     const payload = {
       message: message,
     };
 
     try {
-      //send the form data to a server="lambda" and wait for lambda to respond
       const response = await invokeApig({
         path: "/feedback",
         method: "POST",
         headers: {
-          //tells the server the format of the data
           "Content-Type": "application/json",
         },
         body: payload,
@@ -34,8 +33,80 @@ const FeedbackForm: React.FC = () => {
       console.error("Error", error);
       alert("Failed to send your Feedback.");
     } finally {
-      setLoading(false); // Stop loading animation
+      setLoading(false);
     }
+  };
+
+  const startRecording = async () => {
+    setMessage("");
+    setRecording(true);
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    const mediaRecorder = new MediaRecorder(stream, { mimeType: "audio/webm" });
+    mediaRecorderRef.current = mediaRecorder;
+    setAudioChunks([]);
+
+    mediaRecorder.ondataavailable = (event) => {
+      if (event.data.size > 0) {
+        setAudioChunks((prev) => [...prev, event.data]);
+      }
+    };
+
+    mediaRecorder.start();
+  };
+
+  const stopRecording = async () => {
+    setRecording(false);
+    if (mediaRecorderRef.current) {
+      mediaRecorderRef.current.stop();
+      mediaRecorderRef.current.onstop = async () => {
+        // Combine chunks into a single blob
+        const blob = new Blob(audioChunks, { type: "audio/webm" });
+
+        // Show loading while transcribing
+        setLoading(true);
+        try {
+          const base64Audio = await blobToBase64(blob);
+          // Call the transcribe API
+          const response = await invokeApig({
+            path: "/transcribeAudio",
+            method: "POST",
+            headers: {
+              "Content-Type": "application/octet-stream",
+            },
+            body: base64Audio, // Our lambda expects base64 audio
+          });
+
+          if (response && response.transcript) {
+            setMessage(response.transcript);
+          } else {
+            alert("Failed to transcribe audio.");
+          }
+        } catch (error) {
+          console.error("Transcription Error:", error);
+          alert("Error transcribing audio.");
+        } finally {
+          setLoading(false);
+        }
+      };
+    }
+  };
+
+  const blobToBase64 = (blob: Blob): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const result = reader.result;
+        if (typeof result === "string") {
+          // Strip the base64 prefix if any
+          const base64Data = result.split(",")[1] || result;
+          resolve(base64Data);
+        } else {
+          reject(new Error("Failed to convert blob to base64"));
+        }
+      };
+      reader.onerror = reject;
+      reader.readAsDataURL(blob);
+    });
   };
 
   return (
@@ -103,6 +174,41 @@ const FeedbackForm: React.FC = () => {
           ></textarea>
         </div>
 
+        <div style={{ display: "flex", gap: "10px" }}>
+          {!recording && (
+            <button
+              type="button"
+              onClick={startRecording}
+              style={{
+                padding: "0.5rem 1rem",
+                backgroundColor: "#4b4b4b",
+                color: "#fff",
+                border: "none",
+                borderRadius: "4px",
+                cursor: "pointer",
+              }}
+            >
+              🎤 Start Recording
+            </button>
+          )}
+          {recording && (
+            <button
+              type="button"
+              onClick={stopRecording}
+              style={{
+                padding: "0.5rem 1rem",
+                backgroundColor: "#d9534f",
+                color: "#fff",
+                border: "none",
+                borderRadius: "4px",
+                cursor: "pointer",
+              }}
+            >
+              ⏹ Stop Recording
+            </button>
+          )}
+        </div>
+
         <button
           type="submit"
           disabled={loading}
@@ -138,7 +244,7 @@ const FeedbackForm: React.FC = () => {
                   animation: "spin 1s linear infinite",
                 }}
               />
-              Loading...
+              Processing...
             </span>
           ) : (
             "Submit Feedback"

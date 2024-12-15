@@ -17,9 +17,9 @@ export function ApiStack({ stack }: StackContext) {
 
   // Create the HTTP API
   const api = new Api(stack, "Api", {
-    defaults: {
-      authorizer: "iam",
-    },
+    // defaults: {
+    //   authorizer: "iam",
+    // },
     routes: {
       "GET /examForm/{id}": {
         function: {
@@ -201,6 +201,17 @@ export function ApiStack({ stack }: StackContext) {
           runtime: "nodejs20.x",
           timeout: "180 seconds",
           permissions: ["polly"],
+        },
+      },
+      "POST /transcribeAudio": {
+        function: {
+          handler: "packages/functions/transcribeAudio/handler.lambda_handler", // Adjust to the correct handler path
+          runtime: "python3.9", // Ensure the runtime matches your Lambda function
+          timeout: 30, // Adjust timeout as necessary
+          layers: [
+            "arn:aws:lambda:us-east-1:248189920021:layer:ffmpeg:1"
+          ],
+          permissions: [], // No special permissions needed for this example
         },
       },
     },

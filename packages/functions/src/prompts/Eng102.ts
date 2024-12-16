@@ -17,6 +17,7 @@ export const ENG102PROMPT = `
             "marks": 10,
             "content": {
               "passage": "<200-word listening passage>",
+              "audio": ""
               "questions": [
                 {
                   "type": "multiple-choice",

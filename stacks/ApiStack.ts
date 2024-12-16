@@ -4,16 +4,18 @@ import { Duration } from "aws-cdk-lib/core";
 import { DBStack } from "./DBStack"
 import { StorageStack } from "./StorageStack";
 import * as iam from "aws-cdk-lib/aws-iam";
+import { PollyClient } from "@aws-sdk/client-polly";
 
 
 export function ApiStack({ stack }: StackContext) {
   const topic = new Topic(stack, "Report");
   const userTopic = new Topic(stack, "UserTopic");
-
+  const audioBucket = new Bucket(stack, "AudioBucket");
   const { users_table, exams_table, exams_dataset } = use(DBStack);
   const { materialsBucket } = use(StorageStack);
+ 
 
-  const bucket = new Bucket(stack, "Audio");
+ // const bucket = new Bucket(stack, "Audio");
 
   // Create the HTTP API
   const api = new Api(stack, "Api", {
@@ -151,7 +153,7 @@ export function ApiStack({ stack }: StackContext) {
           permissions: ["dynamodb", exams_table, exams_dataset,"polly","s3","bedrock","sns"],
           environment: {
             TABLE_NAME: exams_table.tableName,
-            BUCKET_NAME: bucket.bucketName,
+            //BUCKET_NAME: bucket.bucketName,
             TOPIC_ARN: userTopic.topicArn,
             DATASET_TABLE_NAME:exams_dataset.tableName
           },
@@ -195,14 +197,20 @@ export function ApiStack({ stack }: StackContext) {
           },
         },
       },
-      "POST /convertToAudio": {
-        function: {
-          handler: "packages/functions/src/generateAudio.handler",
-          runtime: "nodejs20.x",
-          timeout: "180 seconds",
-          permissions: ["polly"],
-        },
-      },
+
+      "POST /generateAudio": {
+  function: {
+    handler: "packages/functions/src/generateAudio.generateAudio",
+    runtime: "nodejs20.x",
+    timeout: 180,
+    permissions: ["dynamodb", "polly", "s3","s3:PutObject"],
+    environment: {
+      TABLE_NAME: exams_table.tableName,
+      //BUCKET_NAME: audioBucket.bucketName,
+    },
+  },
+}
+
     },
   });
 

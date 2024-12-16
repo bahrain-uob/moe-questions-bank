@@ -14,6 +14,7 @@ const config = {
   s3: {
     REGION: import.meta.env.VITE_REGION,
     BUCKET: import.meta.env.VITE_MATERIALS_BUCKET_NAME,
+    
   },
 };
 

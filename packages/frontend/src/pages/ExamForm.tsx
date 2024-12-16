@@ -32,6 +32,7 @@ interface Question {
 interface ExamContent {
   parts: Part[]; // Add this to reflect the structure of the data
   [key: string]: any; // Allow flexibility for other properties
+  audioUrls?: string[];
 }
 
 
@@ -52,6 +53,8 @@ const ExamForm: React.FC = () => {
   const [examContent, setExamContent] = useState<ExamContent | null>(null);
   const [_editMode,_setEditMode] = useState(false); // Toggle edit mode
   const [_editedContent,_setEditedContent] = useState<Record<string, any>>({});
+  const [audioUrls, setAudioUrls] = useState<string[]>([]);
+  
   
  
 
@@ -97,6 +100,25 @@ const fetchInitialData = async () => {
       try {
         const parsedContent = JSON.parse(content);
         setExamContent(parsedContent);
+
+        
+        
+       // Assign the fetched audio URLs to respective subsections
+
+       console.log("Audio URLs:", response.audioUrls);
+       
+       const audioUrls = response.audioUrls || [];
+       if (parsedContent?.sections?.[0]?.subsections) {
+         const subsections = parsedContent.sections[0].subsections;
+   
+         if (subsections[0]) {
+           subsections[0].content.audio = audioUrls[0]; // Passage audio for Listening One
+         }
+         if (subsections[1]) {
+           subsections[1].content.audio = audioUrls[1]; // Dialogue audio for Listening Two
+         }
+       }
+
       } catch (parseError) {
         console.error("Failed to parse exam content as JSON:", content);
         setErrorMsg("Invalid exam data format.");
@@ -125,6 +147,8 @@ const fetchInitialData = async () => {
     if (response.examState !== "building") {
       navigate(`/dashboard/viewExam/${id}`);
     }
+
+
   } catch (err: any) {
     console.error("Error fetching initial data:", err);
     setErrorMsg("Failed to load exam data. Please try again later.");
@@ -167,6 +191,24 @@ const fetchExamContent = async () => {
       return;
     }
 
+    
+       // Assign the fetched audio URLs to respective subsections
+
+       console.log("Audio URLs:", response.audioUrls);
+
+    const audioUrls = response.audioUrls || [];
+    if (parsedContent?.sections?.[0]?.subsections) {
+      const subsections = parsedContent.sections[0].subsections;
+
+      if (subsections[0]) {
+        subsections[0].content.audio = audioUrls[0]; // Passage audio for Listening One
+      }
+      if (subsections[1]) {
+        subsections[1].content.audio = audioUrls[1]; // Dialogue audio for Listening Two
+      }
+    }
+
+
     setExamContent(parsedContent);
     console.log("Parsed Exam Content Successfully Set in State:", parsedContent);
   } catch (error) {
@@ -174,6 +216,72 @@ const fetchExamContent = async () => {
     setErrorMsg("Failed to load exam content. Please try again later.");
   }
 };
+
+
+const handleGenerateAudio = async (examID: string) => {
+  setLoading(true);
+
+
+  try {
+    const payload = {
+      examID: examID,
+      bucketName: "qbtesttest" //import.meta.env.VITE_AUDIO_BUCKET_NAME,  // Ensure this is correctly set
+    };
+
+    console.log("Sending Payload:", payload); // Log the payload to check if both values are present
+
+    const functionURL = import.meta.env.VITE_GENERATE_AUDIO_URL;
+    console.log("Function URL:", functionURL);
+
+    const response = await fetch(functionURL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(payload),
+    });
+
+    let data = await response.json();
+    console.log("API Response:", data);
+
+    if (data.audioUrls) {
+      // window.location.reload(); 
+      //await fetchExamContent(); // Fetch updated exam content with new audio URLs
+    }
+
+//   if (data="Audio generated successfully") {
+//     //setAudioGenerated(true); // Mark audio as generated
+//   _setLoading(false);
+//   alert("Audio is Available!");
+//  // Refresh the page after the success message
+// window.location.reload();  }
+
+
+  } catch (error) {
+    console.error("Error generating audio:", error);
+    setErrorMsg("An error occurred while generating audio.");
+    setLoading(false);
+  }
+};
+
+
+ 
+  useEffect(() => {
+    if (id) {
+      console.log("Exam ID:", id);
+  
+      // Check if audio is already available
+      if (!examContent?.audioUrls || examContent.audioUrls.length === 0) {
+        console.log("Audio not available, generating audio...");
+        handleGenerateAudio(id);
+      } else {
+        console.log("Audio already available:", examContent.audioUrls);
+      }
+    } else {
+      console.error("Exam ID is missing or undefined!");
+    }
+  }, [id, examContent]);
+  
 
 
   useEffect(() => {
@@ -674,7 +782,27 @@ const fetchExamContent = async () => {
               {subsection.content.passage}
             </p>
           )}
-          {subsection.content?.dialogue && (
+          
+{subsection.content?.dialogue && (
+      <p style={{ fontStyle: "italic", marginBottom: "1rem" }}>
+        {subsection.content.dialogue}
+      </p>
+    )}
+
+           {/* Audio Player */}
+           {subsection.content?.audio && (
+      <div style={{ marginTop: "1rem" }}>
+        <audio controls style={{ width: "100%" }}>
+          <source
+            src={subsection.content.audio}
+            type="audio/mpeg"
+          />
+          Your browser does not support the audio element.
+        </audio>
+      </div>
+    )}
+
+          {/* {subsection.content?.dialogue && (
             <pre
               style={{
                 fontStyle: "italic",
@@ -687,7 +815,7 @@ const fetchExamContent = async () => {
             >
               {subsection.content.dialogue}
             </pre>
-          )}
+          )} */}
 
        {/* Questions */}
        {subsection.content?.questions && Array.isArray(subsection.content.questions) && (

@@ -6,7 +6,6 @@ import {
   ViewerProtocolPolicy,
 } from "aws-cdk-lib/aws-cloudfront";
 import { HttpOrigin } from "aws-cdk-lib/aws-cloudfront-origins";
-
 import { StaticSite, StackContext, use } from "sst/constructs";
 import { ApiStack } from "./ApiStack";
 import { AuthStack } from "./AuthStack";
@@ -18,6 +17,7 @@ export function FrontendStack({ stack, app }: StackContext) {
   const auth = use(AuthStack);
   const { materialsBucket } = use(StorageStack);
   const { createExamFunction } = use(FunctionsStack);
+  const { generateAudioFunction } = use(FunctionsStack);
   
   // Deploy our React app
   const site = new StaticSite(stack, "ReactSite", {
@@ -32,6 +32,9 @@ export function FrontendStack({ stack, app }: StackContext) {
       VITE_IDENTITY_POOL_ID: auth.auth.cognitoIdentityPoolId || "",
       VITE_MATERIALS_BUCKET_NAME: materialsBucket.bucketName,
       VITE_CREATE_EXAM_FUNCTION_URL: createExamFunction.url || "",
+      VITE_GENERATE_AUDIO_URL: generateAudioFunction.url || "",
+      
+
     },
     cdk: {
       distribution: {

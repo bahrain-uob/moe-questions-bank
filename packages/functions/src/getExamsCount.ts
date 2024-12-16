@@ -14,26 +14,29 @@ export async function getExamsCount(event: APIGatewayProxyEvent) {
     "Content-Type": "application/json",
   };
 
-  const params = {
-    TableName: tableName, // Table name
-    IndexName: "examStateIndex", // Specify the index name
-    KeyConditionExpression: "examState = :state", // Query condition
-    ExpressionAttributeValues: {
-      ":state": "pending", // The value you want to match
-    },
-  };
-
-  let result;
   try {
-    // Query the DynamoDB table and get the count
-    result = await dynamodb.query(params);
+    const states = ["approved", "disapproved", "building", "pending"];
+    const counts: { [key: string]: number } = {};
+
+    for (const state of states) {
+      const params = {
+        TableName: tableName, 
+        IndexName: "examStateIndex",
+        KeyConditionExpression: "examState = :state", 
+        ExpressionAttributeValues: {
+          ":state": state, 
+        },
+      };
+
+      const result = await dynamodb.query(params);
+      counts[state] = result.Count || 0; // Use 0 if result.Count is undefined
+    }
+
+    body = JSON.stringify(counts);
   } catch (error) {
     console.error("Error querying exams:", error);
     statusCode = 400;
     body = JSON.stringify({ error: "Unable to count exams" });
-  } finally {
-    // Return the count as the response body
-    body = JSON.stringify({ count: result.Count });
   }
 
   // Return response
@@ -43,3 +46,4 @@ export async function getExamsCount(event: APIGatewayProxyEvent) {
     headers,
   };
 }
+

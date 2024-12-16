@@ -179,7 +179,7 @@ export function InitialForm() {
           marginBottom: "2rem",
         }}
       >
-        {/* Create New Exam Button */}
+        {/*Create New Exam Button */}
         <div
           onClick={() => handleSelection(true)}
           style={{
@@ -196,7 +196,7 @@ export function InitialForm() {
           Create New Exam
         </div>
 
-        {/* Use Existing Exam Button */}
+        {/*Use Existing Exam Button*/}
         <div
           onClick={() => handleSelection(false)}
           style={{
@@ -211,8 +211,8 @@ export function InitialForm() {
           }}
         >
           Use Existing Exam
-        </div>
-      </div>
+        </div> 
+      </div> 
 
       <span>
         <p style={{ color: "red" }}>{errorMsg}</p>
@@ -262,7 +262,7 @@ export function InitialForm() {
                   }}
                 />
                 Customize
-              </label>
+              </label> 
             </div>
 
             <label

@@ -15,7 +15,7 @@ export function ApiStack({ stack }: StackContext) {
   const { materialsBucket } = use(StorageStack);
  
 
- // const bucket = new Bucket(stack, "Audio");
+ const bucket = new Bucket(stack, "Audio");
 
   // Create the HTTP API
   const api = new Api(stack, "Api", {
@@ -209,7 +209,19 @@ export function ApiStack({ stack }: StackContext) {
       //BUCKET_NAME: audioBucket.bucketName,
     },
   },
-}
+},
+
+"POST /getAudio": {
+  function: {
+    handler: "packages/functions/src/getAudio.handler",
+    runtime: "nodejs20.x",
+    timeout: "180 seconds",
+    permissions: ["s3"],
+    environment: {
+      BUCKET_NAME: bucket.bucketName,
+    },
+  },
+},
 
     },
   });

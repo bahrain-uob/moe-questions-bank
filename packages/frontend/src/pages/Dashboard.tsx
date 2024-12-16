@@ -11,35 +11,142 @@ import invokeApig from "../lib/callAPI.ts";
 interface UserDashboardProps {}
 
 const Dashboard: React.FC<UserDashboardProps> = () => {
+  
   const navigate = useNavigate();
   const { userHasAuthenticated } = useAppContext();
   const { userRole } = useAppContext();
   const [activePage, setActivePage] = useState<string>(
     window.location.pathname
   );
-  const [examCount, setExamCount] = useState(0); // State pending count name
-  const [filterValue] = useState("pending");
+  const [approved, setApproved] = useState(0);
+  const [disapproved, setDisapproved] = useState(0);
+  const [building, setBuilding] = useState(0);
+  const [pending, setPending] = useState(0);
+  const [gettingExams, setGettingExams] = useState(true);
+  const [gettingExamsError, setGetExamsError] = useState("");
+  const [exams, setExams] = useState([]);
+  const [filterValue, setFilterValue] = useState(
+    userRole === "User" ? "building" : "pending"
+  );
 
-  setTimeout(() => {
-    setActivePage(window.location.pathname);
-  }, 500);
 
-  // Fetch exam count only once when the component mounts
-  useEffect(() => {
-    async function fetchExamCount() {
+
+  // Fetch initial data
+    const fetchInitialData = async () => {
       try {
-        // @ts-ignore
+        //@ts-ignore
         const response = await invokeApig({
-          path: `/getExamCount`, // Adjust path as needed
+          path: `/getExamHistory`, 
           method: "GET",
           queryParams: {
             state: filterValue,
           },
         });
-        setExamCount(response ? response.count : 0); // Set the exam count
+  
+        if (!response || Object.keys(response).length === 0) {
+          console.log(response);
+          setGetExamsError("No exams found!");
+          return;
+        }
+  
+        // Store the retrieved exams in the state
+        setExams(response);
+  
+        console.log("Initial Data Loaded:", response);
+      } catch (err: any) {
+        console.error("Error fetching initial data:", err);
+      } finally {
+        setGettingExams(false); // Mark loading as complete
+      }
+    };
+
+    async function getExams() {
+        setExams([]);
+        setGettingExams(true);
+        console.log(filterValue);
+        try {
+          //@ts-ignore
+          const response = await invokeApig({
+            path: `/getExamHistory`, // Adjust path as needed
+            method: "GET",
+            queryParams: {
+              state: filterValue,
+            },
+          });
+    
+          if (!response || Object.keys(response).length === 0) {
+            console.log(response);
+            setGetExamsError("No exams found!");
+            return;
+          }
+    
+          setGetExamsError("");
+    
+          // Store the retrieved exams in the state
+          setExams(response);
+    
+          console.log("Initial Data Loaded:", response);
+        } catch (err: any) {
+          console.error("Error fetching initial data:", err);
+        } finally {
+          setGettingExams(false); // Mark loading as complete
+        }
+      }
+    
+      // Function to determine the color based on the examState
+      function getColorForState(state:any) {
+        const stateColors = {
+          pending: "rgba(255, 140, 0, 0.9)", // Orange
+          approved: "rgba(34, 139, 34, 0.9)", // Green
+          disapproved: "rgba(255, 0, 0, 0.9)", // Red
+          default: "rgba(105, 105, 105, 0.9)", // Gray for unknown states
+        };
+    
+        //@ts-ignore
+        return stateColors[state.toLowerCase()] || stateColors.default;
+      }
+  
+    useEffect(() => {
+      // Add a timeout before fetching data
+      const timer = setTimeout(() => {
+        fetchInitialData();
+      }, 2000);
+  
+      // Cleanup the timeout if the component unmounts
+      return () => clearTimeout(timer);
+    }, []);
+
+  setTimeout(() => {
+    setActivePage(window.location.pathname);
+  }, 500);
+
+  
+  useEffect(() => {
+    
+    async function fetchExamCount() {
+      try {
+        // @ts-ignore
+        const response = await invokeApig({
+          path: `/getExamCount`,
+          method: "GET",
+          queryParams: {
+            state: filterValue,
+          },
+        });
+
+        setApproved(response ? response.approved : 0);
+        setDisapproved(response ? response.disapproved : 0);
+        setBuilding(response ? response.building : 0);
+        setPending(response ? response.pending : 0);
+
       } catch (err) {
-        console.error("Error fetching exam count:", err);
-        setExamCount(0); // Set count to 0 if there's an error
+
+        setApproved(0);
+        setDisapproved(0);
+        setBuilding(0);
+        setPending(0);
+
+        console.error("Error fetching exam count:", err); 
       }
     }
    
@@ -91,85 +198,6 @@ const Dashboard: React.FC<UserDashboardProps> = () => {
               onClick={() => setActivePage("/dashboard")}
             />
           </NavLink>
-          {userRole === "User" && (
-            <>
-              <NavLink
-                to="/dashboard/examForm"
-                onClick={() => setActivePage("generateExams")}
-                style={() => ({
-                  backgroundColor: "#d32f2f",
-                  color: "white",
-                  padding: "0.5rem 1rem",
-                  borderRadius: "16px",
-                  fontSize: "16px",
-                  fontWeight: "bold",
-                  cursor: "pointer",
-                  textDecoration: "none",
-                  transition: "transform 0.3s, box-shadow 0.3s",
-                  border: "none",
-                })}
-              >
-                Generate Exam
-              </NavLink>
-              <NavLink
-                to="/dashboard/upload"
-                onClick={() => setActivePage("uploadMaterial")}
-                style={() => ({
-                  backgroundColor: "#d32f2f",
-                  color: "white",
-                  padding: "0.5rem 1rem",
-                  borderRadius: "16px",
-                  fontSize: "16px",
-                  fontWeight: "bold",
-                  cursor: "pointer",
-                  textDecoration: "none",
-                  transition: "transform 0.3s, box-shadow 0.3s",
-                  border: "none",
-                })}
-              >
-                Upload Material
-              </NavLink>
-              <NavLink
-                to="/dashboard/history"
-                onClick={() => setActivePage("history")}
-                style={() => ({
-                  backgroundColor: "#d32f2f",
-                  color: "white",
-                  padding: "0.5rem 1rem",
-                  borderRadius: "16px",
-                  fontSize: "16px",
-                  fontWeight: "bold",
-                  cursor: "pointer",
-                  textDecoration: "none",
-                  transition: "transform 0.3s, box-shadow 0.3s",
-                  border: "none",
-                })}
-              >
-                See Exams
-              </NavLink>
-            </>
-          )}
-
-          {userRole === "Admin" && (
-            <NavLink
-              to="/dashboard/approveExam"
-              onClick={() => setActivePage("approveExams")}
-              style={() => ({
-                backgroundColor: "#d32f2f",
-                color: "white",
-                padding: "0.5rem 1rem",
-                borderRadius: "16px",
-                fontSize: "16px",
-                fontWeight: "bold",
-                cursor: "pointer",
-                textDecoration: "none",
-                transition: "transform 0.3s, box-shadow 0.3s",
-                border: "none",
-              })}
-            >
-              Pending Exams
-            </NavLink>
-          )}
 
           <NavLink
             to="/dashboard/feedback-form"
@@ -233,191 +261,86 @@ const Dashboard: React.FC<UserDashboardProps> = () => {
               maxWidth: "100%",
             }}
           >
-            {userRole === "User" && (
-              <>
-                <NavLink
-                  to="/dashboard/examForm"
-                  onClick={() => setActivePage("generateExam")}
-                  style={{ textDecoration: "none" }}
-                >
-                  <div
-                    style={{
-                      width: "300px",
-                      height: "300px",
-                      backgroundColor: "white",
-                      color: "#d32f2f",
-                      display: "flex",
-                      flexDirection: "column",
-                      justifyContent: "center",
-                      alignItems: "center",
-                      borderRadius: "16px",
-                      fontSize: "20px",
-                      fontWeight: "bold",
-                      textAlign: "center",
-                      cursor: "pointer",
-                      boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
-                      transition: "transform 0.3s, box-shadow 0.3s",
-                    }}
-                    onMouseEnter={(e) => {
-                      const card = e.currentTarget;
-                      card.style.transform = "scale(1.05)";
-                      card.style.boxShadow = "0 8px 15px rgba(0, 0, 0, 0.3)";
-                    }}
-                    onMouseLeave={(e) => {
-                      const card = e.currentTarget;
-                      card.style.transform = "scale(1)";
-                      card.style.boxShadow = "0 4px 8px rgba(0, 0, 0, 0.1)";
-                    }}
-                  >
-                    <span
-                      style={{
-                        fontWeight: "bold",
-                        fontSize: "34px",
-                        marginBottom: "0.5rem",
-                      }}
-                    >
-                      Generate Exam
-                    </span>
-                    <p
-                      style={{
-                        fontSize: "14px",
-                        fontWeight: "normal",
-                        textAlign: "center",
-                        color: "black",
-                        maxWidth: "80%",
-                      }}
-                    >
-                      Create new exams using uploaded material.
-                    </p>
-                  </div>
-                </NavLink>
-                <NavLink
-                  to="/dashboard/history"
-                  onClick={() => setActivePage("seeExams")}
-                  style={{ textDecoration: "none" }}
-                >
-                  <div
-                    style={{
-                      width: "300px",
-                      height: "300px",
-                      backgroundColor: "white",
-                      color: "#d32f2f",
-                      display: "flex",
-                      flexDirection: "column",
-                      justifyContent: "center",
-                      alignItems: "center",
-                      borderRadius: "16px",
-                      fontSize: "20px",
-                      fontWeight: "bold",
-                      textAlign: "center",
-                      cursor: "pointer",
-                      boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
-                      transition: "transform 0.3s, box-shadow 0.3s",
-                    }}
-                    onMouseEnter={(e) => {
-                      const card = e.currentTarget;
-                      card.style.transform = "scale(1.05)";
-                      card.style.boxShadow = "0 8px 15px rgba(0, 0, 0, 0.3)";
-                    }}
-                    onMouseLeave={(e) => {
-                      const card = e.currentTarget;
-                      card.style.transform = "scale(1)";
-                      card.style.boxShadow = "0 4px 8px rgba(0, 0, 0, 0.1)";
-                    }}
-                  >
-                    <span
-                      style={{
-                        fontWeight: "bold",
-                        fontSize: "34px",
-                        marginBottom: "0.5rem",
-                      }}
-                    >
-                      See Exams
-                    </span>
-                    <p
-                      style={{
-                        fontSize: "14px",
-                        fontWeight: "normal",
-                        textAlign: "center",
-                        color: "black",
-                        maxWidth: "80%",
-                      }}
-                    >
-                      View all previously generated exams.
-                    </p>
-                  </div>
-                </NavLink>
-                <NavLink
-                  to="/dashboard/audiopPage"
-                  onClick={() => setActivePage("audio")}
-                  style={{ textDecoration: "none" }}
-                >
-                  <div
-                    style={{
-                      width: "300px",
-                      height: "300px",
-                      backgroundColor: "white",
-                      color: "#d32f2f",
-                      display: "flex",
-                      flexDirection: "column",
-                      justifyContent: "center",
-                      alignItems: "center",
-                      borderRadius: "16px",
-                      fontSize: "20px",
-                      fontWeight: "bold",
-                      textAlign: "center",
-                      cursor: "pointer",
-                      boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
-                      transition: "transform 0.3s, box-shadow 0.3s",
-                    }}
-                    onMouseEnter={(e) => {
-                      const card = e.currentTarget;
-                      card.style.transform = "scale(1.05)";
-                      card.style.boxShadow = "0 8px 15px rgba(0, 0, 0, 0.3)";
-                    }}
-                    onMouseLeave={(e) => {
-                      const card = e.currentTarget;
-                      card.style.transform = "scale(1)";
-                      card.style.boxShadow = "0 4px 8px rgba(0, 0, 0, 0.1)";
-                    }}
-                  >
-                    <span
-                      style={{
-                        fontWeight: "bold",
-                        fontSize: "34px",
-                        marginBottom: "0.5rem",
-                      }}
-                    >
-                      Generate Audio
-                    </span>
-                    <p
-                      style={{
-                        fontSize: "14px",
-                        fontWeight: "normal",
-                        textAlign: "center",
-                        color: "black",
-                        maxWidth: "80%",
-                      }}
-                    >
-                      Generate Audio.
-                    </p>
-                  </div>
-                </NavLink>
-              </>
-            )}
-
-            {userRole === "Admin" && (
-              <NavLink
-                to="/dashboard/approveExam"
-                onClick={() => setActivePage("approveExams")}
-                style={{ textDecoration: "none" }}
+            <div
+                style={{
+                  width: "200px",
+                  height: "200px",
+                  backgroundColor: "white",
+                  color: "rgba(255, 140, 0, 0.9)",
+                  display: "flex",
+                  flexDirection: "column",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  borderRadius: "16px",
+                  fontSize: "20px",
+                  fontWeight: "bold",
+                  textAlign: "center",
+                  boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
+                  transition: "transform 0.3s, box-shadow 0.3s",
+                  position: "relative",
+                }}
               >
-                <div
+                <span
                   style={{
-                    width: "300px",
-                    height: "300px",
+                    fontWeight: "bold",
+                    fontSize: "20px",
+                    marginBottom: "0.5rem",
+                  }}
+                >
+                  Pending Exams
+                </span>
+                <span
+                  style={{
+                    fontWeight: "bold",
+                    fontSize: "20px",
+                    marginBottom: "0.5rem",
+                  }}
+                >
+                  {pending}
+                </span>
+              </div><div
+                style={{
+                  width: "200px",
+                  height: "200px",
+                  backgroundColor: "white",
+                  color: "rgba(34, 139, 34, 0.9)",
+                  display: "flex",
+                  flexDirection: "column",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  borderRadius: "16px",
+                  fontSize: "20px",
+                  fontWeight: "bold",
+                  textAlign: "center",
+                  boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
+                  transition: "transform 0.3s, box-shadow 0.3s",
+                  position: "relative",
+                }}
+              >
+                  <span
+                    style={{
+                      fontWeight: "bold",
+                      fontSize: "20px",
+                      marginBottom: "0.5rem",
+                    }}
+                  >
+                    Approved Exams
+                  </span>
+                  <span
+                    style={{
+                      fontWeight: "bold",
+                      fontSize: "20px",
+                      marginBottom: "0.5rem",
+                    }}
+                  >
+                    {approved}
+                  </span>
+                </div><div
+                  style={{
+                    width: "200px",
+                    height: "200px",
                     backgroundColor: "white",
-                    color: "#d32f2f",
+                    color: "rgba(255, 0, 0, 0.9)",
                     display: "flex",
                     flexDirection: "column",
                     justifyContent: "center",
@@ -426,63 +349,498 @@ const Dashboard: React.FC<UserDashboardProps> = () => {
                     fontSize: "20px",
                     fontWeight: "bold",
                     textAlign: "center",
-                    cursor: "pointer",
                     boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
                     transition: "transform 0.3s, box-shadow 0.3s",
                     position: "relative",
-                  }}
-                  onMouseEnter={(e) => {
-                    const card = e.currentTarget;
-                    card.style.transform = "scale(1.05)";
-                    card.style.boxShadow = "0 8px 15px rgba(0, 0, 0, 0.3)";
-                  }}
-                  onMouseLeave={(e) => {
-                    const card = e.currentTarget;
-                    card.style.transform = "scale(1)";
-                    card.style.boxShadow = "0 4px 8px rgba(0, 0, 0, 0.1)";
                   }}
                 >
                   <span
                     style={{
                       fontWeight: "bold",
-                      fontSize: "34px",
+                      fontSize: "20px",
                       marginBottom: "0.5rem",
                     }}
                   >
-                    Pending Exams
+                    Disapproved Exams
                   </span>
-                  <p
-                    style={{
-                      fontSize: "14px",
-                      fontWeight: "normal",
-                      textAlign: "center",
-                      margin: "0 auto",
-                      color: "black",
-                      maxWidth: "80%",
-                    }}
-                  >
-                    See all the generated exams waiting for your approval.
-                  </p>
                   <span
                     style={{
-                      position: "absolute",
-                      bottom: "10px",
-                      right: "10px",
-                      backgroundColor: "#d32f2f",
-                      color: "white",
-                      width: "50px",
-                      height: "50px",
-                      borderRadius: "50%",
-                      display: "flex",
-                      justifyContent: "center",
-                      alignItems: "center",
+                      fontWeight: "bold",
+                      fontSize: "20px",
+                      marginBottom: "0.5rem",
                     }}
                   >
-                    {examCount}
+                    {disapproved}
                   </span>
                 </div>
-              </NavLink>
+              <div
+                style={{
+                  width: "200px",
+                  height: "200px",
+                  backgroundColor: "white",
+                  color: "rgba(105, 105, 105, 0.9)",
+                  display: "flex",
+                  flexDirection: "column",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  borderRadius: "16px",
+                  fontSize: "20px",
+                  fontWeight: "bold",
+                  textAlign: "center",
+                  boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
+                  transition: "transform 0.3s, box-shadow 0.3s",
+                  position: "relative",
+                }}
+              >
+                  <span
+                    style={{
+                      fontWeight: "bold",
+                      fontSize: "20px",
+                      marginBottom: "0.5rem",
+                    }}
+                  >
+                    Building Exams
+                  </span>
+                  <span
+                    style={{
+                      fontWeight: "bold",
+                      fontSize: "20px",
+                      marginBottom: "0.5rem",
+                    }}
+                  >
+                    {building}
+                  </span>
+                </div>
+
+                {userRole === "User" && (
+              <><NavLink
+                to="/dashboard/examForm"
+                onClick={() => setActivePage("generateExam")}
+                style={{ textDecoration: "none" }}
+              >
+                <div
+                  style={{
+                    width: "250px",
+                    height: "250px",
+                    backgroundColor: "white",
+                    color: "#d32f2f",
+                    display: "flex",
+                    flexDirection: "column",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    borderRadius: "16px",
+                    fontSize: "18px",
+                    fontWeight: "bold",
+                    textAlign: "center",
+                    cursor: "pointer",
+                    boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
+                    transition: "transform 0.3s, box-shadow 0.3s",
+                  }}
+                  onMouseEnter={(e) => {
+                    const card = e.currentTarget;
+                    card.style.transform = "scale(1.05)";
+                    card.style.boxShadow = "0 8px 15px rgba(0, 0, 0, 0.3)";
+                  } }
+                  onMouseLeave={(e) => {
+                    const card = e.currentTarget;
+                    card.style.transform = "scale(1)";
+                    card.style.boxShadow = "0 4px 8px rgba(0, 0, 0, 0.1)";
+                  } }
+                >
+                  <span
+                    style={{
+                      fontWeight: "bold",
+                      fontSize: "28px",
+                      marginBottom: "0.5rem",
+                    }}
+                  >
+                    Generate Exam
+                  </span>
+                </div>
+              </NavLink><NavLink
+                to="/dashboard/upload"
+                onClick={() => setActivePage("uploadMaterial")}
+                style={{ textDecoration: "none" }}
+              >
+                  <div
+                    style={{
+                      width: "250px",
+                      height: "250px",
+                      backgroundColor: "white",
+                      color: "#d32f2f",
+                      display: "flex",
+                      flexDirection: "column",
+                      justifyContent: "center",
+                      alignItems: "center",
+                      borderRadius: "16px",
+                      fontSize: "18px",
+                      fontWeight: "bold",
+                      textAlign: "center",
+                      cursor: "pointer",
+                      boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
+                      transition: "transform 0.3s, box-shadow 0.3s",
+                    }}
+                    onMouseEnter={(e) => {
+                      const card = e.currentTarget;
+                      card.style.transform = "scale(1.05)";
+                      card.style.boxShadow = "0 8px 15px rgba(0, 0, 0, 0.3)";
+                    } }
+                    onMouseLeave={(e) => {
+                      const card = e.currentTarget;
+                      card.style.transform = "scale(1)";
+                      card.style.boxShadow = "0 4px 8px rgba(0, 0, 0, 0.1)";
+                    } }
+                  >
+                    <span
+                      style={{
+                        fontWeight: "bold",
+                        fontSize: "28px",
+                        marginBottom: "0.5rem",
+                      }}
+                    >
+                      Upload Material
+                    </span>
+                  </div>
+                </NavLink><NavLink
+                  to="/dashboard/audiopPage"
+                  onClick={() => setActivePage("audio")}
+                  style={{ textDecoration: "none" }}
+                >
+                  <div
+                    style={{
+                      width: "250px",
+                      height: "250px",
+                      backgroundColor: "white",
+                      color: "#d32f2f",
+                      display: "flex",
+                      flexDirection: "column",
+                      justifyContent: "center",
+                      alignItems: "center",
+                      borderRadius: "16px",
+                      fontSize: "18px",
+                      fontWeight: "bold",
+                      textAlign: "center",
+                      cursor: "pointer",
+                      boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
+                      transition: "transform 0.3s, box-shadow 0.3s",
+                    }}
+                    onMouseEnter={(e) => {
+                      const card = e.currentTarget;
+                      card.style.transform = "scale(1.05)";
+                      card.style.boxShadow = "0 8px 15px rgba(0, 0, 0, 0.3)";
+                    } }
+                    onMouseLeave={(e) => {
+                      const card = e.currentTarget;
+                      card.style.transform = "scale(1)";
+                      card.style.boxShadow = "0 4px 8px rgba(0, 0, 0, 0.1)";
+                    } }
+                  >
+                    <span
+                      style={{
+                        fontWeight: "bold",
+                        fontSize: "28px",
+                        marginBottom: "0.5rem",
+                      }}
+                    >
+                      Generate Audio
+                    </span>
+                  </div>
+                </NavLink></>
+
             )}
+
+
+                <div>
+
+                <div
+                style={{
+                  display: "flex",
+                  flexWrap: "wrap",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  gap: "1rem",
+                  marginBottom: "2rem",
+                  backgroundColor: "#fff",
+                  padding: "1rem",
+                  borderRadius: "8px",
+                  boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
+                  width: "100%",
+                  maxWidth: "800px",
+                }}
+              >
+                <div>
+                  <label
+                    style={{
+                      fontSize: "14px",
+                      fontWeight: "bold",
+                      color: "#555",
+                    }}
+                  >
+                    State:
+                  </label>
+                  <select
+                    value={filterValue}
+                    onChange={(e) => setFilterValue(e.target.value)}
+                    style={{
+                      display: "block",
+                      width: "200px",
+                      padding: "0.6rem",
+                      borderRadius: "4px",
+                      border: "1px solid #ccc",
+                      marginTop: "0.5rem",
+                      fontSize: "14px",
+                    }}
+                  >
+                    <option value="pending">Pending</option>
+                    <option value="approved">Approved</option>
+                    <option value="disapproved">Disapproved</option>
+                    {userRole === "User" && <option value="building">Building</option>}
+                  </select>
+                </div>
+                <button
+                  onClick={getExams}
+                  style={{
+                    backgroundColor: "#4b4b4b",
+                    color: "white",
+                    padding: "0.4rem 1rem",
+                    borderRadius: "4px",
+                    fontSize: "16px",
+                    border: "none",
+                    cursor: "pointer",
+                    marginTop: "1.5rem",
+                  }}
+                >
+                  {gettingExams ? (
+                    <span
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        gap: "0.5rem",
+                      }}
+                    >
+                      <span
+                        style={{
+                          width: "1rem",
+                          height: "1rem",
+                          border: "2px solid #fff",
+                          borderRadius: "50%",
+                          borderTop: "2px solid transparent",
+                          animation: "spin 1s linear infinite",
+                        }}
+                      ></span>
+                      Fetching..
+                    </span>
+                  ) : (
+                    "Apply Filter"
+                  )}
+                </button>
+              </div>
+
+            {gettingExams && <div>Loading exams...</div>}
+
+            {!gettingExams && !gettingExamsError && exams.length > 0 && (
+              <div
+                style={{
+                  marginTop: "2rem",
+                  width: "100%",
+                  padding: "1rem",
+                  backgroundColor: "#fafafa",
+                  borderRadius: "8px",
+                  boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
+                }}
+              >
+                <h3 style={{ marginBottom: "1.5rem", color: "#333" }}>
+                  Pending Exams:
+                </h3>
+                {exams.map((exam) => (
+                  <div
+                    //@ts-ignore
+                    key={exam.examID}
+                    //@ts-ignore
+                    onClick={() => navigate(`/dashboard/viewExam/${exam.examID}`)} // Redirect to the exam form page
+                    style={{
+                      marginBottom: "1rem",
+                      padding: "1rem",
+                      backgroundColor: "#fff",
+                      borderRadius: "8px",
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "flex-start",
+                      cursor: "pointer",
+                      transition: "background-color 0.3s ease",
+                      border: "1px solid rgba(0, 0, 0, 0.05)",
+                      boxShadow: "0 1px 3px rgba(0, 0, 0, 0.1)",
+                    }}
+                    onMouseEnter={(e) =>
+                      (e.currentTarget.style.backgroundColor = "#f9f9f9")
+                    }
+                    onMouseLeave={(e) =>
+                      (e.currentTarget.style.backgroundColor = "#fff")
+                    }
+                  >
+                    {/* Creator */}
+                    <div style={{ flex: 1, marginRight: "1rem" }}>
+                      <p
+                        style={{
+                          margin: 0,
+                          fontSize: "12px",
+                          color: "#777",
+                        }}
+                      >
+                        Creator
+                      </p>
+                      <p
+                        style={{
+                          margin: 0,
+                          fontSize: "14px",
+                          color: "#333",
+                          fontWeight: "bold",
+                        }}
+                      >
+                        {/*@ts-ignore*/}
+                        {exam.createdBy}
+                      </p>
+                    </div>
+
+                    {/* Date */}
+                    <div style={{ flex: 1, marginRight: "1rem" }}>
+                      <p
+                        style={{
+                          margin: 0,
+                          fontSize: "12px",
+                          color: "#777",
+                        }}
+                      >
+                        Date
+                      </p>
+                      <p
+                        style={{
+                          margin: 0,
+                          fontSize: "14px",
+                          color: "#333",
+                          fontWeight: "bold",
+                        }}
+                      >
+                        {/*@ts-ignore*/}
+                        {exam.creationDate}
+                      </p>
+                    </div>
+
+                    {/* Subject */}
+                    <div style={{ flex: 1, marginRight: "1rem" }}>
+                      <p
+                        style={{
+                          margin: 0,
+                          fontSize: "12px",
+                          color: "#777",
+                        }}
+                      >
+                        Subject
+                      </p>
+                      <p
+                        style={{
+                          margin: 0,
+                          fontSize: "14px",
+                          color: "#333",
+                          fontWeight: "bold",
+                        }}
+                      >
+                        {/*@ts-ignore*/}
+                        {exam.examSubject}
+                      </p>
+                    </div>
+
+                    {/* Class */}
+                    <div style={{ flex: 1, marginRight: "1rem" }}>
+                      <p
+                        style={{
+                          margin: 0,
+                          fontSize: "12px",
+                          color: "#777",
+                        }}
+                      >
+                        Class
+                      </p>
+                      <p
+                        style={{
+                          margin: 0,
+                          fontSize: "14px",
+                          color: "#333",
+                          fontWeight: "bold",
+                        }}
+                      >
+                        {/*@ts-ignore*/}
+                        {exam.examClass}
+                      </p>
+                    </div>
+
+                    {/* Semester */}
+                    <div style={{ flex: 1 }}>
+                      <p
+                        style={{
+                          margin: 0,
+                          fontSize: "12px",
+                          color: "#777",
+                        }}
+                      >
+                        Semester
+                      </p>
+                      <p
+                        style={{
+                          margin: 0,
+                          fontSize: "14px",
+                          color: "#333",
+                          fontWeight: "bold",
+                        }}
+                      >
+                        {/*@ts-ignore*/}
+                        {exam.examSemester}
+                      </p>
+                    </div>
+
+                    {/* State */}
+                    <div
+                      style={{
+                        flex: 1,
+                        textAlign: "right",
+                      }}
+                    >
+                      <p
+                        style={{
+                          marginTop: "14px",
+                          textAlign: "center",
+                          margin: 0,
+                          fontSize: "14px",
+                          fontWeight: "bold",
+                          //@ts-ignore
+                          color: getColorForState(exam.examState), // Dynamic color based on exam state
+                        }}
+                      >
+                        {/*@ts-ignore*/}
+                        {exam.examState.toUpperCase()}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {!gettingExams && gettingExamsError && (
+              <div
+                style={{
+                  marginTop: "2rem",
+                  padding: "1rem",
+                  backgroundColor: "#fff",
+                  borderRadius: "8px",
+                  boxShadow: "0 4px 8px rgba(0,0,0,0.1)",
+                  color: "red",
+                }}
+              >
+                {gettingExamsError}
+              </div>
+            )}
+          </div>
           </div>
         )}
         {activePage !== "/dashboard" && <Outlet />}

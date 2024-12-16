@@ -54,6 +54,8 @@ export async function approve(event: APIGatewayProxyEvent) {
             const script = content.passage || content.dialogue;
             listeningScript += `Listening ${subIndex + 1}\n`;
             listeningScript += `${script}\n`;
+            listeningScript += `Listening ${subIndex + 1} again\n`;
+            listeningScript += `${script}\n`;
           }
         }
       }

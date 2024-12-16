@@ -58,7 +58,7 @@ const ViewExam: React.FC = () => {
   const [LoadingDisapprove, setLoadingDisapprove] = useState(false);
   const [examContent, setExamContent] = useState<ExamContent | null>(null);
   //const [audioUrl, setAudioUrl] = useState<string | null>(null);
-  const [audioUrls, setAudioUrls] = useState<string[]>([]);
+  const [_audioUrls, _setAudioUrls] = useState<string[]>([]);
   const [_editMode, _setEditMode] = useState(false); // Toggle edit mode
   const [_editedContent, _setEditedContent] = useState<Record<string, any>>({});
   const [isEditing, _setIsEditing] = useState(false);

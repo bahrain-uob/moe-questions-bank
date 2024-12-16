@@ -10,7 +10,7 @@ import { PollyClient } from "@aws-sdk/client-polly";
 export function ApiStack({ stack }: StackContext) {
   const topic = new Topic(stack, "Report");
   const userTopic = new Topic(stack, "UserTopic");
-  const audioBucket = new Bucket(stack, "AudioBucket");
+  //const audioBucket = new Bucket(stack, "AudioBucket");
   const { users_table, exams_table, exams_dataset } = use(DBStack);
   const { materialsBucket } = use(StorageStack);
  

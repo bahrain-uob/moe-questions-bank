@@ -53,12 +53,7 @@ const ExamForm: React.FC = () => {
   const [examContent, setExamContent] = useState<ExamContent | null>(null);
   const [_editMode,_setEditMode] = useState(false); // Toggle edit mode
   const [_editedContent,_setEditedContent] = useState<Record<string, any>>({});
-  const [audioUrls, setAudioUrls] = useState<string[]>([]);
-  
-  
- 
-
-
+  const [_audioUrls, _setAudioUrls] = useState<string[]>([]);
   // State for feedback and UI
   const [loadingStates, setLoadingStates] = useState<{ [key: string]: boolean }>({});
 

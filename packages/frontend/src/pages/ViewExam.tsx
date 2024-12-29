@@ -1566,7 +1566,7 @@ const ViewExam: React.FC = () => {
           {/* download PDF start here */}
           <div>
             {/* Conditionally render the "Download PDF" button if the exam is approved */}
-            {examState === "approved" && subject === "ENG102" && (
+            {examState === "approved" && subject === "ENG102" && userRole === "User" && (
               <button
                 onClick={handleDownloadPDF} // This triggers the PDF download function
                 style={{
@@ -1601,7 +1601,7 @@ const ViewExam: React.FC = () => {
           {/* download Audio start here */}
           <div>
             {/* Conditionally render the "Download Audio" button if the exam is approved */}
-            {examState === "approved" && subject === "ENG102" && (
+            {examState === "approved" && subject === "ENG102" && userRole === "User" && (
               <button
                 onClick={handleDownloadAudio} // This triggers the Audio download function
                 style={{

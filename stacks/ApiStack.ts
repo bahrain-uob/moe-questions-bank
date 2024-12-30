@@ -5,6 +5,7 @@ import { DBStack } from "./DBStack"
 import { StorageStack } from "./StorageStack";
 import * as iam from "aws-cdk-lib/aws-iam";
 import { MyStack } from "./OpenSearchStack"; // Import the OpenSearch stack
+import { BedrockKbLambdaStack } from "./bedrockstack";
 
 
 export function ApiStack({ stack }: StackContext) {
@@ -15,6 +16,7 @@ export function ApiStack({ stack }: StackContext) {
 
   const { users_table, exams_table, exams_dataset } = use(DBStack);
   const { materialsBucket } = use(StorageStack);
+  const { syncKnowledgeBaseFunction } = use(BedrockKbLambdaStack)
 
   const bucket = new Bucket(stack, "Audio");
 
@@ -56,6 +58,7 @@ export function ApiStack({ stack }: StackContext) {
           permissions: ["s3", materialsBucket],
           environment: {
             BUCKET_NAME: materialsBucket.bucketName,
+            SYNC_KB_FUNCTION_NAME: syncKnowledgeBaseFunction.functionName
           },
         },
       },
@@ -68,6 +71,7 @@ export function ApiStack({ stack }: StackContext) {
           permissions: ["dynamodb", exams_table], // Ensure necessary permissions
           environment: {
             TABLE_NAME: exams_table.tableName, // Pass the table name to the Lambda
+
           },
         },
       },

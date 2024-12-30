@@ -18,11 +18,11 @@ function getCollectionName(stage: string) {
 export function OpenSearchConstruct(scope: Construct, executorRole: Role, stage: string): {collectionEndpoint: string, collectionArn: string} {
   const accountId = Aws.ACCOUNT_ID; // Dynamically retrieve AWS account ID
 
-  const collectionName = getCollectionName(stage);
+  const collectionName = getCollectionName(stage.toLowerCase());
   
-  const securityPolicyName = getResourceName("my-collection-policy", stage);
-  const networkPolicyName = getResourceName("my-network-policy", stage);
-  const dataAccessPolicyName = getResourceName("my-data-access-policy", stage);
+  const securityPolicyName = getResourceName("policy", stage.toLowerCase());
+  const networkPolicyName = getResourceName("policy", stage.toLowerCase());
+  const dataAccessPolicyName = getResourceName("policy", stage.toLowerCase());
   const collectionResourceName = `collection/${collectionName}`;
   const indexResourceName = `index/${collectionName}/*`;
 

@@ -111,20 +111,20 @@ export function BedrockKbLambdaStack({ stack }: StackContext) {
  
 
 
- // Add IAM permissions for the Lambda function
-//  const syncKnowledgeBaseFunction = new Function(stack, "SyncKnowledgeBase", {
-//   handler: "packages/functions/src/SyncKB.handler",
-//   environment: {
-//     KNOWLEDGE_BASE_ID: bedrockKb.knowledgeBaseId,
-//     DATA_SOURCE_ID: bedrockKb.dataSourceId,
-//   },
-//   permissions: [
-//     "bedrock:StartIngestionJob",    // Permission to start ingestion jobs in Bedrock
-//     "s3:GetObject",  
-//     "aoss:CreateDocument",
-//     "aoss:ReadDocument",
-//   ],
-// });
+//  Add IAM permissions for the Lambda function
+ const syncKnowledgeBaseFunction = new Function(stack, "SyncKnowledgeBase", {
+  handler: "packages/functions/src/SyncKB.handler",
+  environment: {
+    KNOWLEDGE_BASE_ID: bedrockKb.knowledgeBaseId,
+    DATA_SOURCE_ID: bedrockKb.dataSourceId,
+  },
+  permissions: [
+    "bedrock:StartIngestionJob",    // Permission to start ingestion jobs in Bedrock
+    "s3:GetObject",  
+    "aoss:CreateDocument",
+    "aoss:ReadDocument",
+  ],
+});
 
 // Add an S3 trigger to the Lambda function (currently gives cyclic dependency error)
 // syncKnowledgeBaseFunction.addEventSource(new S3EventSource(bucket, {
@@ -136,5 +136,5 @@ export function BedrockKbLambdaStack({ stack }: StackContext) {
     DATA_SOURCE_ID: bedrockKb.dataSourceId,
   });
 
-  return { bedrockKbRole, bedrockKb }
+  return { bedrockKbRole, bedrockKb, syncKnowledgeBaseFunction }
 }

@@ -1,10 +1,10 @@
 import { BedrockAgentClient, StartIngestionJobCommand } from "@aws-sdk/client-bedrock-agent";
-import { SNSEvent } from 'aws-lambda';
+
  
 export async function handler(event: any) {
  
-  const knowledgeBaseId = "5N3XAVMAJ5";
-  const dataSourceId = "YHBE9O0CC4";
+  const knowledgeBaseId = process.env.KNOWLEDGE_BASE_ID;
+  const dataSourceId = process.env.DATA_SOURCE_ID;
  
   // Create a client for Bedrock Agent
   const client = new BedrockAgentClient({ region: "us-east-1" });

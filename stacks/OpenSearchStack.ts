@@ -107,7 +107,7 @@ export function OpenSearchConstruct(scope: Construct, executorRole: Role, stage:
           `arn:aws:iam::${accountId}:role/aoss-lambda-api-executor-role`, // Correct ARN with accountId
           executorRole.roleArn, // Use executorRole ARN
           `arn:aws:iam::${accountId}:root`,
-          "arn:aws:iam::248189920021:user/202100332@stu.uob.edu.bh",
+          //"arn:aws:iam::248189920021:user/202100332@stu.uob.edu.bh",
           // Add yours if needed
         ],
       },

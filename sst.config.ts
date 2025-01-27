@@ -34,7 +34,7 @@ export default {
       app
         .stack(DBStack)
         .stack(MyStack)
-        // .stack(KnowledgeBaseStack)
+        .stack(KnowledgeBaseStack)
         .stack(StorageStack)
         .stack(BedrockKbLambdaStack)
         .stack(FunctionsStack)

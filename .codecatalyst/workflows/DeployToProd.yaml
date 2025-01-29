@@ -17,25 +17,22 @@ Actions:
       # Optional
       Sources:
         - WorkflowSource # This specifies that the action requires this Workflow as a source
-    Outputs:
-      # Optional; Automatically discover reports for popular test frameworks
-      AutoDiscoverReports:
-        Enabled: true
-        # Use as prefix for the report files
-        ReportNamePrefix: rpt
-    # Defines the action's properties.
+        # Defines the action's properties.
     Configuration:
       # Required - Steps are sequential instructions that run shell commands
       Steps:
+        #- Run: node -v
+        - Run: mkdir -p ./reports
+        - Run: echo '<testsuites></testsuites>' > ./reports/test-report.xml
         - Run: chmod +x ./.codecatalyst/scripts/sst_deploy.sh
         - Run: ./.codecatalyst/scripts/sst_deploy.sh
       Container:
-        Registry: ECR
-        Image: 297940647071.dkr.ecr.us-west-2.amazonaws.com/codecatalyst-support:amazonlinux23withgit-1.2.0-7
+        Registry: CODECATALYST
+        Image: CodeCatalystLinux_x86_64:2024_03
     Compute:
       Type: EC2
     Environment:
       Connections:
-        - Role: CodeCatalystWorkflowDevelopmentRole-AWS-CIC-23-24-Test
-          Name: "888641773886"
+        - Role: CodeCatalystWorkflowDevelopmentRole-iGA_Projects
+          Name: "600627328431"
       Name: Prod

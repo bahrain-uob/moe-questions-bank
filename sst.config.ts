@@ -1,5 +1,4 @@
 import { SSTConfig } from "sst";
-import { FrontendStack } from "./stacks/FrontendStack";
 import { DBStack } from "./stacks/DBStack";
 import { ApiStack } from "./stacks/ApiStack";
 import { ImageBuilderForCodeCatalyst } from "./stacks/devops/ImageBuilderForCodeCatalyst";
@@ -10,6 +9,7 @@ import { MyStack } from "./stacks/OpenSearchStack";
 import { BedrockKbLambdaStack } from "./stacks/bedrockstack";
 import { StorageStack } from "./stacks/StorageStack";
 import { FunctionsStack } from "./stacks/FunctionsStack";
+import { FrontendStack } from "./stacks/FrontendStack";
 
 export default {
   config(_input) {
@@ -34,7 +34,7 @@ export default {
       app
         .stack(DBStack)
         .stack(MyStack)
-        // .stack(KnowledgeBaseStack)
+        .stack(KnowledgeBaseStack)
         .stack(StorageStack)
         .stack(BedrockKbLambdaStack)
         .stack(FunctionsStack)
